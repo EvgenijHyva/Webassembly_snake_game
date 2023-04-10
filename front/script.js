@@ -1,6 +1,10 @@
 async function init() {
-	const byteArray = new Int8Array();
-	const wasm = await WebAssembly.instantiate(byteArray.buffer);
+	const wasmFileUrl = "fileURL";
+
+	const resp = await fetch(wasmFileUrl);
+	const buffer = await resp.arrayBuffer(); // for webasembly used Buffer 
+
+	const wasm = await WebAssembly.instantiate(buffer);
 }
 
 

@@ -13,5 +13,22 @@ module.exports = {
 			from: "./index.html",
 			to: "./"
 		}]
-	})]
+	})],
+	module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: [
+					{
+						loader: 'style-loader',
+						options: { 
+							insert: 'head',
+							injectType: 'singletonStyleTag' 
+						},
+					},
+					"css-loader"
+				],
+			},
+		]
+	}
 }

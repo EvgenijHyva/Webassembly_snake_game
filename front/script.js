@@ -1,7 +1,11 @@
-import init, { greet } from "snake_game";
+import "./styles.css";
+import init, { WorldMap, greet } from "snake_game";
+const canvas = document.getElementById("snake-game-canvas");
+const ctx = canvas.getContext("2d");
 
 init().then(_ => {
-	greet("test")
+	const map = WorldMap.new();
+	console.log(map.width())
 })
 
 

@@ -5,8 +5,20 @@ use wee_alloc::WeeAlloc;
 #[global_allocator]
 static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
-// Exporting into WebAssembly 
 #[wasm_bindgen]
-pub fn greet(name: &str) {
-	println!("{}",name);
+pub struct WorldMap {
+	width: usize
+}
+
+#[wasm_bindgen]
+impl WorldMap {
+	pub fn new() -> WorldMap {
+		WorldMap {
+			width: 10
+		}
+	}
+
+	pub fn width(&self) -> usize {
+		self.width
+	}
 }

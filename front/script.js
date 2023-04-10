@@ -1,14 +1,9 @@
-async function init() {
-	const wasmFileUrl = "fileURL";
+import init, { greet } from "snake_game";
 
-	const resp = await fetch(wasmFileUrl);
-	const buffer = await resp.arrayBuffer(); // for webasembly used Buffer 
+init().then(_ => {
+	greet("test")
+})
 
-	const wasm = await WebAssembly.instantiate(buffer);
-}
-
-
-window.onload = init();
 
 // HEX to Decimal converter
 // https://www.rapidtables.com/convert/number/hex-to-decimal.html

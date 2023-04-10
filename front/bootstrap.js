@@ -1,0 +1,1 @@
+import("./script.js").catch(e => console.error(e));

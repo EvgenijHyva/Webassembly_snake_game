@@ -21,4 +21,8 @@ impl WorldMap {
 	pub fn size(&self) -> usize {
 		self.size
 	}
+
+	pub fn set_size(&mut self, new_size: usize) {
+		self.size = new_size;
+	}
 }

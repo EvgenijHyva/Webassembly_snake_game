@@ -5,9 +5,10 @@ init().then(_ => {
 	const canvas = document.getElementById("snake-game-canvas");
 	const ctx = canvas.getContext("2d");
 	
-	const CELL_SIZE = 10; // px
+	const CELL_SIZE = 25; // px
 
 	const map = WorldMap.new();
+	map.set_size(20);
 	const mapSize = map.size();
 
 	canvas.height = mapSize * CELL_SIZE;
@@ -16,13 +17,20 @@ init().then(_ => {
 	function drawMap() {
 		ctx.beginPath();
 
-		for(let i = 0; i < mapSize + 1; i++) {
-			ctx.moveTo()
+		// drow columns
+		for(let x = 0; x < mapSize + 1; x++) {
+			ctx.moveTo(CELL_SIZE * x, 0);
+			ctx.lineTo(CELL_SIZE * x, mapSize * CELL_SIZE)
+		}
+		// drow rows
+		for(let y = 0; y < mapSize + 1; y++) {
+			ctx.moveTo(0, CELL_SIZE * y);
+			ctx.lineTo(mapSize * CELL_SIZE,CELL_SIZE * y )
 		}
 
 		ctx.stroke();
 	}	
-
+	drawMap();
 })
 
 

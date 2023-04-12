@@ -1,1 +1,1 @@
-import("./script.js").catch(e => console.error(e));
+import("./script").catch(e => console.error(e));

@@ -1,8 +1,8 @@
 import "./styles.css";
-import init, { WorldMap, greet } from "snake_game";
+import init, { WorldMap } from "snake_game";
 
 init().then(_ => {
-	const canvas = document.getElementById("snake-game-canvas");
+	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px

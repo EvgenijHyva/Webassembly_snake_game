@@ -24,6 +24,10 @@ impl WorldMap {
 		self.size
 	}
 
+	pub fn get_2d_size(&self) -> usize {
+		self.size * self.size
+	}
+
 	pub fn set_size(&mut self, new_size: usize) {
 		self.size = new_size;
 	}
@@ -34,7 +38,7 @@ impl WorldMap {
 
 	pub fn update(&mut self) {
 		let snake_idx = self.snake_head_index();
-		self.snake.body[0].0 = (snake_idx + 1) % (self.size * self.size);
+		self.snake.body[0].0 = (snake_idx + 1) % self.get_2d_size();
 	}
 }
 

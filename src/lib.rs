@@ -13,10 +13,10 @@ pub struct WorldMap {
 
 #[wasm_bindgen]
 impl WorldMap {
-	pub fn new() -> WorldMap {
+	pub fn new(size: usize, snake_idx: usize) -> WorldMap {
 		WorldMap {
-			size: 10,
-			snake: Snake::new(10)
+			size,
+			snake: Snake::new(snake_idx)
 		}
 	}
 

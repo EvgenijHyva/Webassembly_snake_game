@@ -31,6 +31,11 @@ impl WorldMap {
 	pub fn snake_head_index(&self) -> usize {
 		self.snake.body[0].0 // body vector.
 	}
+
+	pub fn update(&mut self) {
+		let snake_idx = self.snake_head_index();
+		self.snake.body[0].0 = (snake_idx + 1) % (self.size * self.size);
+	}
 }
 
 struct SnakeCell(usize);

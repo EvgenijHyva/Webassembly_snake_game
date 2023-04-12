@@ -43,9 +43,12 @@ init().then(_ => {
 		ctx.stroke();
 	}
 
-
-	drawMap();
-	drawSnake();
+	setInterval(()=> {
+		ctx.clearRect(0,0, canvas.width, canvas.height); // cleaning canvas
+		drawMap();
+		drawSnake();
+		map.update();
+	}, 1500)
 })
 
 

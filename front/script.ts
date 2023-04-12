@@ -7,10 +7,10 @@ init().then(_ => {
 	
 	const CELL_SIZE = 100; // px
 	const MAP_SIZE = 8;
-	const SNAKE_SPAWN_IDX = Date.now() % (MAP_SIZE * MAP_SIZE);
+	const snakeSpawnIdx = Date.now() % (MAP_SIZE * MAP_SIZE);
 	const SPEED = 1500; // ms
 
-	const map = WorldMap.new(MAP_SIZE, SNAKE_SPAWN_IDX);
+	const map = WorldMap.new(MAP_SIZE, snakeSpawnIdx);
 
 	const lineLength = MAP_SIZE * CELL_SIZE;
 

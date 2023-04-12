@@ -37,21 +37,45 @@ impl WorldMap {
 	}
 
 	pub fn update(&mut self) {
-		let snake_idx = self.snake_head_index();
-		self.snake.body[0].0 = (snake_idx + 1) % self.get_2d_size();
+		let snake_idx: usize = self.snake_head_index();
+		let row: usize = snake_idx / self.size;
+		let col: usize = snake_idx % self.size;
+
+		if self.snake.direction == Direction::Right { // increasing index + 1
+			let nex_col: usize = (col + 1) % self.size;
+			self.snake.body[0].0 = (row * self.size) + nex_col;
+		}
+		if self.snake.direction == Direction::Left { // decreasing index - 1
+			let prev_col: usize = (col - 1) % self.size;
+			self.snake.body[0].0 = (row * self.size) + prev_col;
+		}
+		if self.snake.direction == Direction::Up { // decreasing index - size
+			let prev_row: usize = (row - 1) % self.size;
+			self.snake.body[0].0 = (prev_row * self.size) + col;
+		}
+		if self.snake.direction == Direction::Down { // increasing index + size
+			let next_row: usize = (row + 1) % self.size;
+			self.snake.body[0].0 = (next_row * self.size) + col;
+		}
 	}
 }
 
 struct SnakeCell(usize);
 struct Snake {
-	body: Vec<SnakeCell>
+	body: Vec<SnakeCell>,
+	direction: Direction
 }
 
 impl Snake {
 	fn new(spawn_index: usize) -> Snake {
 		Snake { 
-			body: vec!(SnakeCell(spawn_index)) 
+			body: vec!(SnakeCell(spawn_index)),
+			direction: Direction::Down
 		}
 	}
 }
 
+#[derive(PartialEq)]
+enum Direction {
+	Up, Right, Down, Left
+}

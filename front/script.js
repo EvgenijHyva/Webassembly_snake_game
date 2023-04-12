@@ -11,21 +11,25 @@ init().then(_ => {
 	map.set_size(20);
 	const mapSize = map.size();
 
-	canvas.height = mapSize * CELL_SIZE;
-	canvas.width = mapSize * CELL_SIZE;
+	const lineLength = mapSize * CELL_SIZE;
+
+	canvas.height = lineLength;
+	canvas.width = lineLength;
 
 	function drawMap() {
 		ctx.beginPath();
 
 		// drow columns
 		for(let x = 0; x < mapSize + 1; x++) {
-			ctx.moveTo(CELL_SIZE * x, 0);
-			ctx.lineTo(CELL_SIZE * x, mapSize * CELL_SIZE)
+			const line = CELL_SIZE * x;
+			ctx.moveTo(line, 0);
+			ctx.lineTo(line, lineLength)
 		}
 		// drow rows
 		for(let y = 0; y < mapSize + 1; y++) {
-			ctx.moveTo(0, CELL_SIZE * y);
-			ctx.lineTo(mapSize * CELL_SIZE,CELL_SIZE * y )
+			const line = CELL_SIZE * y;
+			ctx.moveTo(0, line);
+			ctx.lineTo(lineLength, line);
 		}
 
 		ctx.stroke();

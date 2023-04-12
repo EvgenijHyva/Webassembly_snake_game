@@ -5,10 +5,10 @@ init().then(_ => {
 	const canvas = document.getElementById("snake-game-canvas");
 	const ctx = canvas.getContext("2d");
 	
-	const CELL_SIZE = 25; // px
+	const CELL_SIZE = 100; // px
 
 	const map = WorldMap.new();
-	map.set_size(20);
+	map.set_size(8);
 	const mapSize = map.size();
 
 	const lineLength = mapSize * CELL_SIZE;
@@ -18,7 +18,6 @@ init().then(_ => {
 
 	function drawMap() {
 		ctx.beginPath();
-
 		// drow columns
 		for(let x = 0; x < mapSize + 1; x++) {
 			const line = CELL_SIZE * x;
@@ -31,10 +30,22 @@ init().then(_ => {
 			ctx.moveTo(0, line);
 			ctx.lineTo(lineLength, line);
 		}
-
 		ctx.stroke();
-	}	
+	}
+	
+	function drawSnake() {
+		const snakeIdx = map.snake_head_index();
+		const xCoord = (snakeIdx %  mapSize) * CELL_SIZE;
+		const yCoord = Math.floor(snakeIdx / mapSize) * CELL_SIZE;
+		
+		ctx.beginPath();
+		ctx.fillRect(xCoord, yCoord, CELL_SIZE , CELL_SIZE); // will draw starting from (x,y) coord
+		ctx.stroke();
+	}
+
+
 	drawMap();
+	drawSnake();
 })
 
 

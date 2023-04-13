@@ -12,14 +12,6 @@ init().then(wasmObj => {
 
 	const map = WorldMap.new(MAP_SIZE, snakeSpawnIdx);
 
-	const snakeCellPointer = map.snake_cells();
-	const snakeLength = map.snake_length();
-	const snakeCells = new Uint32Array(
-		wasmObj.memory.buffer, 
-		snakeCellPointer, // offset
-		snakeLength // length
-	);
-
 	const lineLength = MAP_SIZE * CELL_SIZE;
 
 	canvas.height = lineLength;
@@ -66,12 +58,21 @@ init().then(wasmObj => {
 	}
 	
 	function drawSnake() {
-		const snakeIdx = map.snake_head_index();
-		const xCoord = (snakeIdx %  MAP_SIZE) * CELL_SIZE;
-		const yCoord = Math.floor(snakeIdx / MAP_SIZE) * CELL_SIZE;
+		const snakeCellPointer = map.snake_cells();
+		const snakeLength = map.snake_length();
+		const snakeCells = new Uint32Array(
+			wasmObj.memory.buffer, 
+			snakeCellPointer, // offset
+			snakeLength // length
+		);
 		
 		ctx.beginPath();
-		ctx.fillRect(xCoord, yCoord, CELL_SIZE , CELL_SIZE); // will draw starting from (x,y) coord
+		snakeCells.forEach(cell => {
+			const xCoord = (cell %  MAP_SIZE) * CELL_SIZE;
+			const yCoord = Math.floor(cell / MAP_SIZE) * CELL_SIZE;
+			ctx.fillRect(xCoord, yCoord, CELL_SIZE , CELL_SIZE); // will draw starting from (x,y) coord
+		});
+
 		ctx.stroke();
 	}
 

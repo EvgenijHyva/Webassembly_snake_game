@@ -38,25 +38,23 @@ impl WorldMap {
 
 	pub fn update(&mut self) {
 		let snake_idx: usize = self.snake_head_index();
-		let row: usize = snake_idx / self.size;
-		let col: usize = snake_idx % self.size;
+		let (row, col) = (snake_idx / self.size, snake_idx % self.size);
+		let (calc_row, calc_col) = match self.snake.direction {
+			Direction::Right => { // increasing index + 1
+				(row, (col + 1) % self.size)
+			},
+			Direction::Left => { // decreasing index - 1
+				(row, (col - 1) % self.size)
+			},
+			Direction::Up => { // decreasing index - size
+				((row - 1) % self.size, col)
+			},
+			Direction::Down => { // increasing index + size
+				((row + 1) % self.size, col)
+			},
+		};
 
-		if self.snake.direction == Direction::Right { // increasing index + 1
-			let nex_col: usize = (col + 1) % self.size;
-			self.snake.body[0].0 = (row * self.size) + nex_col;
-		}
-		if self.snake.direction == Direction::Left { // decreasing index - 1
-			let prev_col: usize = (col - 1) % self.size;
-			self.snake.body[0].0 = (row * self.size) + prev_col;
-		}
-		if self.snake.direction == Direction::Up { // decreasing index - size
-			let prev_row: usize = (row - 1) % self.size;
-			self.snake.body[0].0 = (prev_row * self.size) + col;
-		}
-		if self.snake.direction == Direction::Down { // increasing index + size
-			let next_row: usize = (row + 1) % self.size;
-			self.snake.body[0].0 = (next_row * self.size) + col;
-		}
+		self.snake.body[0].0 = (calc_row * self.size) + calc_col
 	}
 }
 
@@ -70,7 +68,7 @@ impl Snake {
 	fn new(spawn_index: usize) -> Snake {
 		Snake { 
 			body: vec!(SnakeCell(spawn_index)),
-			direction: Direction::Down
+			direction: Direction::Right
 		}
 	}
 }

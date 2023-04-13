@@ -36,9 +36,17 @@ impl WorldMap {
 		self.snake.body[0].0 // body vector.
 	}
 
+	fn cell_to_index(&self, row: usize, col: usize) -> usize {
+		(row * self.size) + col
+	}
+
+	fn index_to_cell(&self, idx: usize) -> (usize, usize) {
+		(idx / self.size, idx % self.size)
+	}
+
 	pub fn update(&mut self) {
 		let snake_idx: usize = self.snake_head_index();
-		let (row, col) = (snake_idx / self.size, snake_idx % self.size);
+		let (row, col) = self.index_to_cell(snake_idx);
 		let (calc_row, calc_col) = match self.snake.direction {
 			Direction::Right => { // increasing index + 1
 				(row, (col + 1) % self.size)
@@ -54,7 +62,7 @@ impl WorldMap {
 			},
 		};
 
-		self.snake.body[0].0 = (calc_row * self.size) + calc_col
+		self.snake.body[0].0 = self.cell_to_index(calc_row, calc_col);
 	}
 }
 
@@ -68,7 +76,7 @@ impl Snake {
 	fn new(spawn_index: usize) -> Snake {
 		Snake { 
 			body: vec!(SnakeCell(spawn_index)),
-			direction: Direction::Right
+			direction: Direction::Up
 		}
 	}
 }

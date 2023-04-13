@@ -44,6 +44,10 @@ impl WorldMap {
 		(idx / self.size, idx % self.size)
 	}
 
+	fn set_snake_head(&mut self, idx: usize) {
+		self.snake.body[0].0 = idx;
+	}
+
 	pub fn update(&mut self) {
 		let snake_idx: usize = self.snake_head_index();
 		let (row, col) = self.index_to_cell(snake_idx);
@@ -62,7 +66,8 @@ impl WorldMap {
 			},
 		};
 
-		self.snake.body[0].0 = self.cell_to_index(calc_row, calc_col);
+		let next_idx = self.cell_to_index(calc_row, calc_col);
+		self.set_snake_head(next_idx);
 	}
 }
 

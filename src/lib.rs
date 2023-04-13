@@ -14,9 +14,10 @@ pub struct WorldMap {
 #[wasm_bindgen]
 impl WorldMap {
 	pub fn new(size: usize, snake_idx: usize) -> WorldMap {
+		let snake_body_size = 3;
 		WorldMap {
 			size,
-			snake: Snake::new(snake_idx)
+			snake: Snake::new(snake_idx, snake_body_size)
 		}
 	}
 
@@ -38,6 +39,18 @@ impl WorldMap {
 
 	pub fn change_snake_direction(&mut self, direction: Direction) {
 		self.snake.direction = direction
+	}
+
+	// can't return a reference to JS its not allowed
+	// *const is raw pointer
+	// borrowing rules not apply to it -> solution
+	// (not considered to be save that much as references, but its necessary if working with interoperations between different langs)
+	pub fn snake_cells(&self) -> *const SnakeCell { // working with pointers
+		self.snake.body.as_ptr()
+	}
+
+	pub fn snake_length(&self) -> usize {
+		self.snake.body.len()
 	}
 
 	fn cell_to_index(&self, row: usize, col: usize) -> usize {
@@ -75,16 +88,22 @@ impl WorldMap {
 	}
 }
 
-struct SnakeCell(usize);
+pub struct SnakeCell(usize);
 struct Snake {
 	body: Vec<SnakeCell>,
 	direction: Direction
 }
 
 impl Snake {
-	fn new(spawn_index: usize) -> Snake {
+	fn new(spawn_index: usize, size: usize) -> Snake {
+		let mut body:Vec<SnakeCell> = vec!();
+		
+		for i in 0..size {
+			body.push(SnakeCell(spawn_index - i));
+		}
+
 		Snake { 
-			body: vec!(SnakeCell(spawn_index)),
+			body,
 			direction: Direction::Up
 		}
 	}

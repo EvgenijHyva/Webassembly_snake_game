@@ -1,7 +1,7 @@
 import "./styles.css";
 import init, { WorldMap, Direction } from "snake_game";
 
-init().then(_ => {
+init().then(wasmObj => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
 	const ctx = canvas.getContext("2d");
 	
@@ -11,6 +11,14 @@ init().then(_ => {
 	const SPEED = 1500; // ms
 
 	const map = WorldMap.new(MAP_SIZE, snakeSpawnIdx);
+
+	const snakeCellPointer = map.snake_cells();
+	const snakeLength = map.snake_length();
+	const snakeCells = new Uint32Array(
+		wasmObj.memory.buffer, 
+		snakeCellPointer, // offset
+		snakeLength // length
+	);
 
 	const lineLength = MAP_SIZE * CELL_SIZE;
 
@@ -35,7 +43,6 @@ init().then(_ => {
 			case "ArrowRight":
 				map.change_snake_direction(Direction.Right);
 				break;
-
 			default:
 				break;
 		}

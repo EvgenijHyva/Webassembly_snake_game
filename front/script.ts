@@ -67,9 +67,11 @@ init().then(wasmObj => {
 		);
 		
 		ctx.beginPath();
-		snakeCells.forEach(cell => {
+		snakeCells.forEach((cell, i) => {
 			const xCoord = (cell %  MAP_SIZE) * CELL_SIZE;
 			const yCoord = Math.floor(cell / MAP_SIZE) * CELL_SIZE;
+
+			ctx.fillStyle = i === 0 ? "#7878db" : "#9100db";
 			ctx.fillRect(xCoord, yCoord, CELL_SIZE , CELL_SIZE); // will draw starting from (x,y) coord
 		});
 

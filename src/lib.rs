@@ -53,38 +53,29 @@ impl WorldMap {
 		self.snake.body.len()
 	}
 
-	fn cell_to_index(&self, row: usize, col: usize) -> usize {
-		(row * self.size) + col
-	}
+	fn generate_next_snake_cell(&self) -> SnakeCell {
+		let snake_idx = self.snake_head_index();
+		let row = snake_idx / self.size;
 
-	fn index_to_cell(&self, idx: usize) -> (usize, usize) {
-		(idx / self.size, idx % self.size)
-	}
-
-	fn set_snake_head(&mut self, idx: usize) {
-		self.snake.body[0].0 = idx;
+		return match self.snake.direction {
+			Direction::Right => { 
+				SnakeCell((row * self.size) + (snake_idx + 1) % self.size)
+			},
+			Direction::Left => { 
+				SnakeCell((row * self.size) + (snake_idx - 1) % self.size)
+			},
+			Direction::Up => { 
+				SnakeCell((snake_idx - self.size) % self.get_2d_size())
+			},
+			Direction::Down => { 
+				SnakeCell((snake_idx + self.size) % self.get_2d_size())
+			},
+		};
 	}
 
 	pub fn update(&mut self) {
-		let snake_idx: usize = self.snake_head_index();
-		let (row, col) = self.index_to_cell(snake_idx);
-		let (calc_row, calc_col) = match self.snake.direction {
-			Direction::Right => { // increasing index + 1
-				(row, (col + 1) % self.size)
-			},
-			Direction::Left => { // decreasing index - 1
-				(row, (col - 1) % self.size)
-			},
-			Direction::Up => { // decreasing index - size
-				((row - 1) % self.size, col)
-			},
-			Direction::Down => { // increasing index + size
-				((row + 1) % self.size, col)
-			},
-		};
-
-		let next_idx = self.cell_to_index(calc_row, calc_col);
-		self.set_snake_head(next_idx);
+		let next_cell = self.generate_next_snake_cell();
+		self.snake.body[0] = next_cell;
 	}
 }
 
@@ -108,6 +99,7 @@ impl Snake {
 		}
 	}
 }
+
 #[wasm_bindgen]
 #[derive(PartialEq)]
 pub enum Direction {

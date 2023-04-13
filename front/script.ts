@@ -1,5 +1,5 @@
 import "./styles.css";
-import init, { WorldMap } from "snake_game";
+import init, { WorldMap, Direction } from "snake_game";
 
 init().then(_ => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
@@ -16,6 +16,30 @@ init().then(_ => {
 
 	canvas.height = lineLength;
 	canvas.width = lineLength;
+
+	document.addEventListener("keyup", (e) => {
+		switch (e.code) {
+			case "KeyW":
+			case "ArrowUp":
+				map.change_snake_direction(Direction.Up);
+				break;
+			case "KeyS":
+			case "ArrowDown":
+				map.change_snake_direction(Direction.Down);
+				break;
+			case "KeyA":
+			case "ArrowLeft":
+				map.change_snake_direction(Direction.Left);
+				break;
+			case "KeyD":
+			case "ArrowRight":
+				map.change_snake_direction(Direction.Right);
+				break;
+
+			default:
+				break;
+		}
+	})
 
 	function drawMap() {
 		ctx.beginPath();

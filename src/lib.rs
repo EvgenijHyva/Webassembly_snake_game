@@ -36,6 +36,10 @@ impl WorldMap {
 		self.snake.body[0].0 // body vector.
 	}
 
+	pub fn change_snake_direction(&mut self, direction: Direction) {
+		self.snake.direction = direction
+	}
+
 	fn cell_to_index(&self, row: usize, col: usize) -> usize {
 		(row * self.size) + col
 	}
@@ -85,8 +89,8 @@ impl Snake {
 		}
 	}
 }
-
+#[wasm_bindgen]
 #[derive(PartialEq)]
-enum Direction {
+pub enum Direction {
 	Up, Right, Down, Left
 }

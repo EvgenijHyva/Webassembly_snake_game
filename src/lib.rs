@@ -74,11 +74,19 @@ impl WorldMap {
 	}
 
 	pub fn update(&mut self) {
+		let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
 		let next_cell = self.generate_next_snake_cell();
-		self.snake.body[0] = next_cell;
+		self.snake.body[0] = next_cell; // head
+
+		let snake_len = self.snake_length();
+
+		for i in 1..snake_len {
+			self.snake.body[i] = SnakeCell(temp[i-1].0);
+		}
 	}
 }
 
+#[derive(Clone)]
 pub struct SnakeCell(usize);
 struct Snake {
 	body: Vec<SnakeCell>,

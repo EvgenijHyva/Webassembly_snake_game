@@ -8,7 +8,8 @@ static ALLOC: WeeAlloc = WeeAlloc::INIT;
 #[wasm_bindgen]
 pub struct WorldMap {
 	size: usize,
-	snake: Snake
+	snake: Snake,
+	next_cell: Option<SnakeCell>,
 }
 
 #[wasm_bindgen]
@@ -17,7 +18,8 @@ impl WorldMap {
 		let snake_body_size = 3;
 		WorldMap {
 			size,
-			snake: Snake::new(snake_idx, snake_body_size)
+			snake: Snake::new(snake_idx, snake_body_size),
+			next_cell: Option::None
 		}
 	}
 
@@ -43,6 +45,8 @@ impl WorldMap {
 		if self.snake.body[1].0 == next_cell.0 {
 			return;
 		}
+		self.next_cell = Option::Some(next_cell);
+
 		self.snake.direction = direction
 	}
 
@@ -80,18 +84,25 @@ impl WorldMap {
 
 	pub fn update(&mut self) {
 		let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
-		let next_cell = self.generate_next_snake_cell(&self.snake.direction);
-		self.snake.body[0] = next_cell; // head
+
+		match self.next_cell {
+			Option::Some(cell) => {
+				self.snake.body[0] = cell; // head
+				self.next_cell = Option::None;
+			},
+			Option::None => {
+				self.snake.body[0] = self.generate_next_snake_cell(&self.snake.direction);
+			}
+		}	
 
 		let snake_len = self.snake_length();
-
 		for i in 1..snake_len {
 			self.snake.body[i] = SnakeCell(temp[i-1].0);
 		}
 	}
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct SnakeCell(usize);
 struct Snake {
 	body: Vec<SnakeCell>,

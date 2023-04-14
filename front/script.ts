@@ -66,21 +66,51 @@ init().then(wasmObj => {
 			snakeLength // length
 		);
 		
-		ctx.beginPath();
 		snakeCells.forEach((cell, i) => {
+			ctx.beginPath();
 			const xCoord = (cell %  MAP_SIZE) * CELL_SIZE;
 			const yCoord = Math.floor(cell / MAP_SIZE) * CELL_SIZE;
 
 			ctx.fillStyle = i === 0 ? "#7878db" : "#9100db";
 			ctx.fillRect(xCoord, yCoord, CELL_SIZE , CELL_SIZE); // will draw starting from (x,y) coord
-		});
+			ctx.stroke();
 
-		ctx.stroke();
+			ctx.beginPath();
+			
+			// Draw circles on top of rectangles
+			if (i !== 0) {
+				ctx.fillStyle = "gray";
+				ctx.beginPath();
+				ctx.arc(xCoord + CELL_SIZE / 4, yCoord + CELL_SIZE / 3, 15, 0, 2 * Math.PI);
+				ctx.fill();
+
+				ctx.beginPath();
+				ctx.arc(xCoord + CELL_SIZE / 1.3, yCoord + CELL_SIZE / 2.3, 15, 0, 2 * Math.PI);
+				ctx.fill();
+
+				ctx.beginPath();
+				ctx.arc(xCoord + CELL_SIZE / 1.99, yCoord + CELL_SIZE / 1.3, 15, 0, 2 * Math.PI);
+				ctx.fill();
+
+			}
+		});
+	}
+
+	function drawReward() {
+		const rewardIdx = map.reward_cell();
+		const col = rewardIdx % MAP_SIZE;
+		const row = Math.floor(rewardIdx / MAP_SIZE);
+
+		ctx.beginPath();
+		ctx.fillStyle = "#FFEAAE";
+		ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
+		ctx.fill();
 	}
 
 	function paint() {
 		drawMap();
 		drawSnake();
+		drawReward();
 	}
 
 	function update() {

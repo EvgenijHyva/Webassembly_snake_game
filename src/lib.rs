@@ -10,6 +10,7 @@ pub struct WorldMap {
 	size: usize,
 	snake: Snake,
 	next_cell: Option<SnakeCell>,
+	reward_cell: usize
 }
 
 #[wasm_bindgen]
@@ -19,8 +20,13 @@ impl WorldMap {
 		WorldMap {
 			size,
 			snake: Snake::new(snake_idx, snake_body_size),
-			next_cell: Option::None
+			next_cell: Option::None,
+			reward_cell: 10
 		}
+	}
+
+	pub fn reward_cell(&self) -> usize {
+		self.reward_cell
 	}
 
 	pub fn size(&self) -> usize {

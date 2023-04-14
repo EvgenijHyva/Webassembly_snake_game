@@ -38,6 +38,11 @@ impl WorldMap {
 	}
 
 	pub fn change_snake_direction(&mut self, direction: Direction) {
+		let next_cell = self.generate_next_snake_cell(&direction);
+
+		if self.snake.body[1].0 == next_cell.0 {
+			return;
+		}
 		self.snake.direction = direction
 	}
 
@@ -53,11 +58,11 @@ impl WorldMap {
 		self.snake.body.len()
 	}
 
-	fn generate_next_snake_cell(&self) -> SnakeCell {
+	fn generate_next_snake_cell(&self, direction: &Direction) -> SnakeCell {
 		let snake_idx = self.snake_head_index();
 		let row = snake_idx / self.size;
 
-		return match self.snake.direction {
+		return match direction {
 			Direction::Right => { 
 				SnakeCell((row * self.size) + (snake_idx + 1) % self.size)
 			},
@@ -75,7 +80,7 @@ impl WorldMap {
 
 	pub fn update(&mut self) {
 		let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
-		let next_cell = self.generate_next_snake_cell();
+		let next_cell = self.generate_next_snake_cell(&self.snake.direction);
 		self.snake.body[0] = next_cell; // head
 
 		let snake_len = self.snake_length();

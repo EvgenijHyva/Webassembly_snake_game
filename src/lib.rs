@@ -23,10 +23,19 @@ pub struct WorldMap {
 impl WorldMap {
 	pub fn new(size: usize, snake_idx: usize) -> WorldMap {
 		let snake_body_size: usize = 3;
-		let reward_cell_idx: usize = rnd(size * size);
+		let snake = Snake::new(snake_idx, snake_body_size);
+
+		let mut reward_cell_idx: usize;
+		loop {
+			reward_cell_idx = rnd(size * size);
+			if !snake.body.contains(&SnakeCell(reward_cell_idx)) {
+				break;
+			}
+		}
+
 		WorldMap {
 			size,
-			snake: Snake::new(snake_idx, snake_body_size),
+			snake,
 			next_cell: Option::None,
 			reward_cell: reward_cell_idx,
 		}
@@ -115,7 +124,7 @@ impl WorldMap {
 	}
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct SnakeCell(usize);
 struct Snake {
 	body: Vec<SnakeCell>,

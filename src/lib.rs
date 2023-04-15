@@ -25,8 +25,9 @@ impl WorldMap {
 		let snake_body_size: usize = 3;
 		let snake = Snake::new(snake_idx, snake_body_size);
 
+		// guard, insure the reward dont generate in snake body
 		let mut reward_cell_idx: usize;
-		loop {
+		loop { 
 			reward_cell_idx = rnd(size * size);
 			if !snake.body.contains(&SnakeCell(reward_cell_idx)) {
 				break;
@@ -120,6 +121,12 @@ impl WorldMap {
 		let snake_len = self.snake_length();
 		for i in 1..snake_len {
 			self.snake.body[i] = SnakeCell(temp[i-1].0);
+		}
+
+		// consuming reward cell
+		if self.reward_cell == self.snake_head_index() {
+			self.snake.body.push(SnakeCell(self.snake.body[1].0));
+			self.reward_cell = None;
 		}
 	}
 }

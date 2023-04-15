@@ -5,6 +5,12 @@ use wee_alloc::WeeAlloc;
 #[global_allocator]
 static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
+#[wasm_bindgen(module = "/front/utils/rnd.js")]
+extern {
+	fn rnd(num: usize) -> usize;
+}
+
+
 #[wasm_bindgen]
 pub struct WorldMap {
 	size: usize,
@@ -16,12 +22,13 @@ pub struct WorldMap {
 #[wasm_bindgen]
 impl WorldMap {
 	pub fn new(size: usize, snake_idx: usize) -> WorldMap {
-		let snake_body_size = 3;
+		let snake_body_size: usize = 3;
+		let reward_cell_idx: usize = rnd(size * size);
 		WorldMap {
 			size,
 			snake: Snake::new(snake_idx, snake_body_size),
 			next_cell: Option::None,
-			reward_cell: 10
+			reward_cell: reward_cell_idx,
 		}
 	}
 

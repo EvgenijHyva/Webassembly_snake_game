@@ -78,21 +78,21 @@ init().then(wasmObj => {
 			ctx.beginPath();
 			
 			// Draw circles on top of rectangles
-			if (i !== 0) {
-				ctx.fillStyle = "gray";
-				ctx.beginPath();
-				ctx.arc(xCoord + CELL_SIZE / 4, yCoord + CELL_SIZE / 3, 15, 0, 2 * Math.PI);
-				ctx.fill();
+			
+			ctx.fillStyle = "gray";
+		
+			ctx.beginPath();
+			ctx.arc(xCoord + CELL_SIZE / 4, yCoord + CELL_SIZE / 3, 15, 0, 2 * Math.PI);
+			ctx.fill();
 
-				ctx.beginPath();
-				ctx.arc(xCoord + CELL_SIZE / 1.3, yCoord + CELL_SIZE / 2.3, 15, 0, 2 * Math.PI);
-				ctx.fill();
+			ctx.beginPath();
+			ctx.arc(xCoord + CELL_SIZE / 1.3, yCoord + CELL_SIZE / 2.3, 15, 0, 2 * Math.PI);
+			ctx.fill();
 
-				ctx.beginPath();
-				ctx.arc(xCoord + CELL_SIZE / 1.99, yCoord + CELL_SIZE / 1.3, 15, 0, 2 * Math.PI);
-				ctx.fill();
+			ctx.beginPath();
+			ctx.arc(xCoord + CELL_SIZE / 1.99, yCoord + CELL_SIZE / 1.3, 15, 0, 2 * Math.PI);
+			ctx.fill();
 
-			}
 		});
 	}
 

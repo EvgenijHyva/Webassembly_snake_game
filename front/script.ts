@@ -3,6 +3,8 @@ import init, { WorldMap, Direction } from "snake_game";
 
 init().then(wasmObj => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
+	const gameControlBtn = <HTMLButtonElement> document.getElementById("game-control-btn");
+	const gameStatus = <HTMLDivElement> document.getElementById("game-status");
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px
@@ -39,6 +41,8 @@ init().then(wasmObj => {
 				break;
 		}
 	})
+
+	gameControlBtn.addEventListener("click", () => map.start_game())
 
 	function drawMap() {
 		ctx.beginPath();

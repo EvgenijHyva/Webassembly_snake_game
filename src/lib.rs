@@ -16,7 +16,8 @@ pub struct WorldMap {
 	size: usize,
 	snake: Snake,
 	next_cell: Option<SnakeCell>,
-	reward_cell: usize
+	reward_cell: usize,
+	status: Option<GameStatus>,
 }
 
 #[wasm_bindgen]
@@ -31,6 +32,7 @@ impl WorldMap {
 			snake,
 			next_cell: Option::None,
 			reward_cell,
+			status: Option::None
 		}
 	}
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> usize {
@@ -44,6 +46,11 @@ impl WorldMap {
 		}
 		reward_cell_idx
 	}
+
+	pub fn start_game(&mut self) {
+		self.status = Some(GameStatus::Played);
+	}
+
 	pub fn reward_cell(&self) -> usize {
 		self.reward_cell
 	}
@@ -108,27 +115,40 @@ impl WorldMap {
 	}
 
 	pub fn update(&mut self) {
-		let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
+		match self.status {
+			Some(GameStatus::Played) => {
+				let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
 
-		match self.next_cell {
-			Option::Some(cell) => {
-				self.snake.body[0] = cell; // head
-				self.next_cell = Option::None;
+				match self.next_cell {
+					Option::Some(cell) => {
+						self.snake.body[0] = cell; // head
+						self.next_cell = Option::None;
+					},
+					Option::None => {
+						self.snake.body[0] = self.generate_next_snake_cell(&self.snake.direction);
+					}
+				}	
+		
+				let snake_len = self.snake_length();
+				for i in 1..snake_len {
+					self.snake.body[i] = SnakeCell(temp[i-1].0);
+				}
+		
+				// consuming reward cell
+				if self.reward_cell == self.snake_head_index() {
+		
+					if self.snake_length() < self.get_2d_size() { // win condition
+						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
+					}
+					self.snake.body.push(SnakeCell(self.snake.body[1].0));
+				}
 			},
-			Option::None => {
-				self.snake.body[0] = self.generate_next_snake_cell(&self.snake.direction);
+			None => {
+
+			},
+			_ => { // all other
+
 			}
-		}	
-
-		let snake_len = self.snake_length();
-		for i in 1..snake_len {
-			self.snake.body[i] = SnakeCell(temp[i-1].0);
-		}
-
-		// consuming reward cell
-		if self.reward_cell == self.snake_head_index() {
-			self.snake.body.push(SnakeCell(self.snake.body[1].0));
-			self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 		}
 	}
 }
@@ -159,4 +179,10 @@ impl Snake {
 #[derive(PartialEq)]
 pub enum Direction {
 	Up, Right, Down, Left
+}
+
+#[wasm_bindgen]
+#[derive(PartialEq)]
+pub enum  GameStatus {
+	Won, Lost, Played
 }

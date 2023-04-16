@@ -1,10 +1,10 @@
 import "./styles.css";
-import init, { WorldMap, Direction } from "snake_game";
+import init, { WorldMap, Direction, GameStatus } from "snake_game";
 
 init().then(wasmObj => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
 	const gameControlBtn = <HTMLButtonElement> document.getElementById("game-control-btn");
-	const gameStatus = <HTMLDivElement> document.getElementById("game-status");
+	const gameStatusContainer = <HTMLDivElement> document.getElementById("game-status");
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px
@@ -20,6 +20,12 @@ init().then(wasmObj => {
 	canvas.width = lineLength;
 
 	document.addEventListener("keyup", (e) => {
+		const gameStatus = map.game_status();
+		if (gameStatus === undefined) {
+			map.start_game();
+			gameControlBtn.textContent = "Reload";
+		}
+
 		switch (e.code) {
 			case "KeyW":
 			case "ArrowUp":
@@ -42,7 +48,15 @@ init().then(wasmObj => {
 		}
 	})
 
-	gameControlBtn.addEventListener("click", () => map.start_game())
+	gameControlBtn.addEventListener("click", () => {
+		const gameStatus = map.game_status();
+		gameControlBtn.textContent = "Reload";
+		if (gameStatus === undefined) {
+			map.start_game();
+		} else {
+			location.reload();
+		}
+	})
 
 	function drawMap() {
 		ctx.beginPath();
@@ -66,7 +80,7 @@ init().then(wasmObj => {
 			{color: "lightgreen", xFactor: 0.75, yFactor: 0.7, radius: 0.09},
 			{color: "pink", xFactor: 0.25, yFactor: 0.33, radius: 0.1},
 			{color: "yellow", xFactor: 0.5, yFactor: 0.5, radius: 0.04},
-			{color: "gray", xFactor: 0.71, yFactor: 0.4, radius: 0.13},
+			{color: "lightblue", xFactor: 0.71, yFactor: 0.4, radius: 0.13},
 			{color: "gray", xFactor: 0.33, yFactor: 0.7, radius: 0.09}
 		]
 		const snakeCellPointer = map.snake_cells();
@@ -108,23 +122,28 @@ init().then(wasmObj => {
 		ctx.fill();
 	}
 
+	function drawGameStatus() {
+		gameStatusContainer.textContent = map.game_status_text();
+	}
+
 	function paint() {
 		drawMap();
 		drawSnake();
 		drawReward();
+		drawGameStatus();
 	}
 
-	function update() {
+	function start() {
 		const fps = 3;
 		setTimeout(()=> {
 			ctx.clearRect(0,0, canvas.width, canvas.height); // cleaning canvas
 			map.update();
 			paint();
-			requestAnimationFrame(update);
+			requestAnimationFrame(start);
 		}, SPEED / fps)
 	}
 	paint();
-	update();
+	start();
 })
 
 

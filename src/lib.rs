@@ -51,6 +51,19 @@ impl WorldMap {
 		self.status = Some(GameStatus::Played);
 	}
 
+	pub fn game_status(&self) -> Option<GameStatus> {
+		self.status
+	}
+
+	pub fn game_status_text(&self) -> String {
+		match self.status {
+			Some(GameStatus::Won) => String::from("You have won!"),
+			Some(GameStatus::Lost) => String::from("You have lost!"),
+			Some(GameStatus::Played) => String::from("Game ongoing"),
+			None => String::from("Pause")
+		}
+	}
+
 	pub fn reward_cell(&self) -> usize {
 		self.reward_cell
 	}
@@ -137,8 +150,10 @@ impl WorldMap {
 				// consuming reward cell
 				if self.reward_cell == self.snake_head_index() {
 		
-					if self.snake_length() < self.get_2d_size() { // win condition
+					if self.snake_length() < self.get_2d_size() {
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
+					} else {  // win condition
+						self.status = Some(GameStatus::Won)
 					}
 					self.snake.body.push(SnakeCell(self.snake.body[1].0));
 				}
@@ -182,7 +197,7 @@ pub enum Direction {
 }
 
 #[wasm_bindgen]
-#[derive(PartialEq)]
+#[derive(Clone, Copy)]
 pub enum  GameStatus {
 	Won, Lost, Played
 }

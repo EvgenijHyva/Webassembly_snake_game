@@ -58,6 +58,13 @@ init().then(wasmObj => {
 	}
 	
 	function drawSnake() {
+		const snakeBodyColors = [
+			{color: "lightgreen", xFactor: 0.75, yFactor: 0.7, radius: 0.09},
+			{color: "pink", xFactor: 0.25, yFactor: 0.33, radius: 0.1},
+			{color: "yellow", xFactor: 0.5, yFactor: 0.5, radius: 0.04},
+			{color: "gray", xFactor: 0.71, yFactor: 0.4, radius: 0.13},
+			{color: "gray", xFactor: 0.33, yFactor: 0.7, radius: 0.09}
+		]
 		const snakeCellPointer = map.snake_cells();
 		const snakeLength = map.snake_length();
 		const snakeCells = new Uint32Array(
@@ -65,7 +72,6 @@ init().then(wasmObj => {
 			snakeCellPointer, // offset
 			snakeLength // length
 		);
-		
 		snakeCells.forEach((cell, i) => {
 			ctx.beginPath();
 			const xCoord = (cell %  MAP_SIZE) * CELL_SIZE;
@@ -78,21 +84,12 @@ init().then(wasmObj => {
 			ctx.beginPath();
 			
 			// Draw circles on top of rectangles
-			
-			ctx.fillStyle = "gray";
-		
-			ctx.beginPath();
-			ctx.arc(xCoord + CELL_SIZE / 4, yCoord + CELL_SIZE / 3, 15, 0, 2 * Math.PI);
-			ctx.fill();
-
-			ctx.beginPath();
-			ctx.arc(xCoord + CELL_SIZE / 1.3, yCoord + CELL_SIZE / 2.3, 15, 0, 2 * Math.PI);
-			ctx.fill();
-
-			ctx.beginPath();
-			ctx.arc(xCoord + CELL_SIZE / 1.99, yCoord + CELL_SIZE / 1.3, 15, 0, 2 * Math.PI);
-			ctx.fill();
-
+			snakeBodyColors.forEach(el => {
+				ctx.fillStyle = el.color;
+				ctx.beginPath();
+				ctx.arc(xCoord + CELL_SIZE * el.xFactor, yCoord + CELL_SIZE * el.yFactor, CELL_SIZE * el.radius, 0, 2 * Math.PI);
+				ctx.fill();
+			})
 		});
 	}
 

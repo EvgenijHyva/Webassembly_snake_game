@@ -23,6 +23,7 @@ init().then(wasmObj => {
 		const gameStatus = map.game_status();
 		if (gameStatus === undefined) {
 			map.start_game();
+			start();
 			gameControlBtn.textContent = "Reload";
 		}
 
@@ -53,6 +54,7 @@ init().then(wasmObj => {
 		gameControlBtn.textContent = "Reload";
 		if (gameStatus === undefined) {
 			map.start_game();
+			start();
 		} else {
 			location.reload();
 		}
@@ -90,12 +92,16 @@ init().then(wasmObj => {
 			snakeCellPointer, // offset
 			snakeLength // length
 		);
-		snakeCells.forEach((cell, i) => {
+		snakeCells
+			.slice() // copy array
+			.reverse() // mutate array in memory
+			.forEach((cell, i) => {
 			ctx.beginPath();
 			const xCoord = (cell %  MAP_SIZE) * CELL_SIZE;
 			const yCoord = Math.floor(cell / MAP_SIZE) * CELL_SIZE;
-
-			ctx.fillStyle = i === 0 ? "#7878db" : "#9100db";
+			
+			ctx.fillStyle = i === snakeLength - 1 ? "#7878db" : map.game_status() == GameStatus.Lost ? "black" : "#9100db";
+			
 			ctx.fillRect(xCoord, yCoord, CELL_SIZE, CELL_SIZE); // will draw starting from (x,y) coord
 			ctx.stroke();
 
@@ -139,11 +145,12 @@ init().then(wasmObj => {
 			ctx.clearRect(0,0, canvas.width, canvas.height); // cleaning canvas
 			map.update();
 			paint();
+			if (map.game_status() === GameStatus.Lost) return;
 			requestAnimationFrame(start);
 		}, SPEED / fps)
 	}
 	paint();
-	start();
+
 })
 
 

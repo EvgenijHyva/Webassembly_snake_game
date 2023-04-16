@@ -147,6 +147,10 @@ impl WorldMap {
 					self.snake.body[i] = SnakeCell(temp[i-1].0);
 				}
 		
+				if self.snake.body[1..snake_len].contains(&self.snake.body[0]) {
+					self.status = Some(GameStatus::Lost);
+				}
+
 				// consuming reward cell
 				if self.reward_cell == self.snake_head_index() {
 		

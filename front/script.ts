@@ -128,6 +128,11 @@ init().then(wasmObj => {
 		ctx.fillStyle = map.get_reward_color() || "#FFEAAE";
 		ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
 		ctx.fill();
+
+		ctx.fillStyle = "white";
+		ctx.font = "15px Arial";
+		const text = map.get_reward_points().toString() + "p";
+		ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.4, row * CELL_SIZE + CELL_SIZE * 0.55);
 	}
 
 	function drawGameStatus() {

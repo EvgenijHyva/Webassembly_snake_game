@@ -47,9 +47,9 @@ impl WorldMap {
 				break;
 			}
 		}
-		let points: usize = 10;
-		let rew_type = WorldMap::define_reward_type(snake_body.len());
-		let reward_cell = RewardCell::new(reward_cell_idx, rew_type, points);
+		let reward_type: RewardType = WorldMap::define_reward_type(snake_body.len());
+		let points: usize = WorldMap::define_reward_points(snake_body, reward_type);
+		let reward_cell: RewardCell = RewardCell::new(reward_cell_idx, reward_type, points);
 		reward_cell
 	}
 
@@ -62,7 +62,18 @@ impl WorldMap {
 		}
 	}
 
-	pub fn points(&self) -> usize{
+	fn define_reward_points(snake_body: &Vec<SnakeCell>, reward_type: RewardType) -> usize {
+		let points: usize = snake_body.len();
+		match Some(reward_type) {
+			Some(RewardType::Yellow) => points,
+			Some(RewardType::Red) => points + points * 2,
+			Some(RewardType::Blue) => points + points * 3,
+			Some(RewardType::Black) => points + points * 4 + 55,
+			_ => points
+		}
+	}
+
+	pub fn points(&self) -> usize {
 		self.points
 	}
 
@@ -76,12 +87,16 @@ impl WorldMap {
 		}
 	} 
 
+	pub fn get_reward_points(&self) -> usize {
+		self.reward_cell.points
+	}
+
 	pub fn add_points(&mut self) {
 		//match self.reward_cell_type {
 		//	Some(RewardType::Yellow) => self.points + 1,
 		//	_ => self.points + 10
 		//};
-		self.points += 1;
+		self.points += self.reward_cell.points;
 	}
 
 	pub fn start_game(&mut self) {

@@ -111,10 +111,6 @@ impl WorldMap {
 		}
 	}
 
-	pub fn reward_cell(&self) -> RewardCell {
-		self.reward_cell
-	}
-
 	pub fn reward_cell_idx(&self) -> usize {
 		self.reward_cell.idx
 	}

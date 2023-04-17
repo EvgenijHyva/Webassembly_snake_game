@@ -10,7 +10,7 @@ init().then(wasmObj => {
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px
-	const MAP_SIZE = 3;
+	const MAP_SIZE = 8;
 	const snakeSpawnIdx = Date.now() % (MAP_SIZE * MAP_SIZE);
 	const SPEED = 1500; // ms
 

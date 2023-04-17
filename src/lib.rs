@@ -19,7 +19,8 @@ pub struct WorldMap {
 	reward_cell: RewardCell,
 	status: Option<GameStatus>,
 	points: usize,
-	steps: usize
+	steps: usize,
+	bonus_points: usize
 }
 
 #[wasm_bindgen]
@@ -36,7 +37,8 @@ impl WorldMap {
 			reward_cell,
 			status: Option::None,
 			points: 0,
-			steps: 10
+			steps: 10,
+			bonus_points: 0
 		}
 	}
 
@@ -79,12 +81,16 @@ impl WorldMap {
 	}
 
 	fn increase_points(&mut self, bonus: usize) {
+		self.bonus_points += bonus;
 		self.points += bonus;
 	}
 
-
 	pub fn points(&self) -> usize {
 		self.points
+	}
+
+	pub fn bonus_stat(&self) -> usize {
+		self.bonus_points
 	}
 
 	pub fn get_reward_color(&self) -> String {

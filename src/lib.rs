@@ -74,6 +74,15 @@ impl WorldMap {
 		}
 	}
 
+	fn reduce_points(&mut self) {
+		self.reward_cell.points -= self.reward_cell.points / 3;
+	}
+
+	fn increase_points(&mut self, bonus: usize) {
+		self.points += bonus;
+	}
+
+
 	pub fn points(&self) -> usize {
 		self.points
 	}
@@ -200,7 +209,7 @@ impl WorldMap {
 				}
 				
 				if self.steps == 0 {
-					self.reward_cell.points -= self.reward_cell.points / 3;
+					self.reduce_points();
 					self.steps = 10;
 				}
 
@@ -211,6 +220,9 @@ impl WorldMap {
 
 				// consuming reward cell
 				if Some(self.reward_cell_idx()) == Some(self.snake_head_index()) {
+					if self.steps > 7 {
+						self.increase_points(self.steps);
+					}
 					self.steps += 7;
 					self.add_points();
 					if self.snake_length() < self.get_2d_size() {

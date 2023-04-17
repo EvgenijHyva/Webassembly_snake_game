@@ -204,9 +204,8 @@ impl WorldMap {
 
 				// consuming reward cell
 				if Some(self.reward_cell_idx()) == Some(self.snake_head_index()) {
-		
+					self.add_points();
 					if self.snake_length() < self.get_2d_size() {
-						self.add_points();
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 					} else {  // win condition
 						self.status = Some(GameStatus::Won)

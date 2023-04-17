@@ -138,7 +138,7 @@ init().then(wasmObj => {
 
 	function drawGameStatus() {
 		gameStatusContainer.textContent = map.game_status_text();
-		gamePointsContainer.textContent = map.points().toString();
+		gamePointsContainer.textContent = map.points().toString() ;
 		gameStepsContainer.textContent = `Points reduce after (${map.get_steps()}) steps.`;
 	}
 

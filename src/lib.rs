@@ -64,12 +64,11 @@ impl WorldMap {
 
 	fn define_reward_points(snake_body: &Vec<SnakeCell>, reward_type: RewardType) -> usize {
 		let points: usize = snake_body.len();
-		match Some(reward_type) {
-			Some(RewardType::Yellow) => points,
-			Some(RewardType::Red) => points + points * 2,
-			Some(RewardType::Blue) => points + points * 3,
-			Some(RewardType::Black) => points + points * 4 + 55,
-			_ => points
+		match reward_type {
+			RewardType::Yellow => points,
+			RewardType::Red => points + points * 2,
+			RewardType::Blue => points + points * 3,
+			RewardType::Black => points + points * 4 + 55,
 		}
 	}
 

@@ -5,10 +5,11 @@ init().then(wasmObj => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
 	const gameControlBtn = <HTMLButtonElement> document.getElementById("game-control-btn");
 	const gameStatusContainer = <HTMLDivElement> document.getElementById("game-status");
+	const gamePointsContainer = <HTMLDivElement> document.getElementById("game-points");
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px
-	const MAP_SIZE = 3;
+	const MAP_SIZE = 8;
 	const snakeSpawnIdx = Date.now() % (MAP_SIZE * MAP_SIZE);
 	const SPEED = 1500; // ms
 
@@ -130,6 +131,7 @@ init().then(wasmObj => {
 
 	function drawGameStatus() {
 		gameStatusContainer.textContent = map.game_status_text();
+		gamePointsContainer.textContent = map.points().toString();
 	}
 
 	function paint() {
@@ -145,7 +147,7 @@ init().then(wasmObj => {
 			ctx.clearRect(0,0, canvas.width, canvas.height); // cleaning canvas
 			map.update();
 			paint();
-			if (map.game_status() === GameStatus.Lost) return;
+			if (map.game_status() !== GameStatus.Played) return;
 			requestAnimationFrame(start);
 		}, SPEED / fps)
 	}

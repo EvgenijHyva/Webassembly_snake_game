@@ -18,6 +18,7 @@ pub struct WorldMap {
 	next_cell: Option<SnakeCell>,
 	reward_cell: Option<usize>,
 	status: Option<GameStatus>,
+	points: usize
 }
 
 #[wasm_bindgen]
@@ -32,9 +33,11 @@ impl WorldMap {
 			snake,
 			next_cell: Option::None,
 			reward_cell,
-			status: Option::None
+			status: Option::None,
+			points: 0
 		}
 	}
+
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> Option<usize> {
 		// guard, insure the reward dont generate in snake body
 		let mut reward_cell_idx: usize;
@@ -45,6 +48,18 @@ impl WorldMap {
 			}
 		}
 		Some(reward_cell_idx)
+	}
+
+	pub fn points(&self) -> usize{
+		self.points
+	}
+
+	pub fn add_points(&mut self) {
+		//match self.reward_cell_type {
+		//	Some(RewardType::Yellow) => self.points + 1,
+		//	_ => self.points + 10
+		//};
+		self.points += 1;
 	}
 
 	pub fn start_game(&mut self) {
@@ -155,6 +170,7 @@ impl WorldMap {
 				if self.reward_cell == Some(self.snake_head_index()) {
 		
 					if self.snake_length() < self.get_2d_size() {
+						self.add_points();
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 					} else {  // win condition
 						self.reward_cell = None;
@@ -195,6 +211,20 @@ impl Snake {
 	}
 }
 
+pub struct RewardCell {
+	idx: usize,
+	reward_type: Option<RewardType>
+}
+
+impl RewardCell {
+	fn new(idx: usize, reward_type: RewardType) -> RewardCell {
+		RewardCell { 
+			idx, 
+			reward_type: Some(reward_type)
+		}
+	}
+}
+
 #[wasm_bindgen]
 #[derive(PartialEq)]
 pub enum Direction {
@@ -205,4 +235,10 @@ pub enum Direction {
 #[derive(Clone, Copy)]
 pub enum  GameStatus {
 	Won, Lost, Played
+}
+
+#[wasm_bindgen]
+#[derive(PartialEq, Clone, Copy)]
+pub enum RewardType {
+	Yellow, Red, Blue, Black
 }

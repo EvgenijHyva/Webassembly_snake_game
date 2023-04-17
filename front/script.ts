@@ -125,7 +125,7 @@ init().then(wasmObj => {
 		const row = Math.floor(rewardIdx / MAP_SIZE);
 
 		ctx.beginPath();
-		ctx.fillStyle = "#FFEAAE";
+		ctx.fillStyle = map.get_reward_color() || "#FFEAAE";
 		ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
 		ctx.fill();
 	}

@@ -48,9 +48,18 @@ impl WorldMap {
 			}
 		}
 		let points: usize = 10;
-		let rew_type = RewardType::Yellow;
-		let rewardCell = RewardCell::new(reward_cell_idx, rew_type, points);
-		rewardCell
+		let rew_type = WorldMap::define_reward_type(snake_body.len());
+		let reward_cell = RewardCell::new(reward_cell_idx, rew_type, points);
+		reward_cell
+	}
+
+	fn define_reward_type(num: usize) -> RewardType {
+		match num {
+			0..=7 => RewardType::Yellow,
+			8..=12 => RewardType::Red,
+			13..=18 => RewardType::Blue,
+			_ => RewardType::Black
+		}
 	}
 
 	pub fn points(&self) -> usize{
@@ -58,7 +67,13 @@ impl WorldMap {
 	}
 
 	pub fn get_reward_color(&self) -> String {
-		String::from("#FFEAAE")
+		match self.reward_cell.reward_type {
+			Some(RewardType::Yellow) => String::from("#FFEAAE"),
+			Some(RewardType::Red) => String::from("chocolate"),
+			Some(RewardType::Blue) => String::from("blueviolet"),
+			Some(RewardType::Black) => String::from("brown"),
+			_ => String::from("cadetblue")
+		}
 	} 
 
 	pub fn add_points(&mut self) {

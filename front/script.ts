@@ -1,3 +1,4 @@
+import { match } from "assert";
 import "./styles.css";
 import init, { WorldMap, Direction, GameStatus } from "snake_game";
 
@@ -119,7 +120,7 @@ init().then(wasmObj => {
 	}
 
 	function drawReward() {
-		const rewardIdx = map.reward_cell();
+		const rewardIdx = map.reward_cell_idx();
 		const col = rewardIdx % MAP_SIZE;
 		const row = Math.floor(rewardIdx / MAP_SIZE);
 
@@ -141,8 +142,34 @@ init().then(wasmObj => {
 		drawGameStatus();
 	}
 
+	function defineFPS() {
+		let snakeLength = map.snake_length();
+		switch(true) {
+			case snakeLength <= 6:
+				return 3;
+			case snakeLength > 6 && snakeLength <= 9:
+				return 4;
+			case snakeLength > 9 && snakeLength <= 12:
+				return 5;
+			case snakeLength > 12 && snakeLength <= 15:
+				return 6;
+			case snakeLength > 15 && snakeLength <= 18:
+				return 7;
+			case snakeLength > 18 && snakeLength <= 25:
+				return 8;
+			case snakeLength > 25 && snakeLength <= 30:
+				return 9;
+			case snakeLength > 30 && snakeLength <= 35:
+				return 10;
+			case snakeLength > 35 && snakeLength <= 40:
+				return 11;
+			default:
+				return 5;
+		}
+	}
+
 	function start() {
-		const fps = 3;
+		let fps = defineFPS();
 		setTimeout(()=> {
 			ctx.clearRect(0,0, canvas.width, canvas.height); // cleaning canvas
 			map.update();
@@ -152,7 +179,6 @@ init().then(wasmObj => {
 		}, SPEED / fps)
 	}
 	paint();
-
 })
 
 

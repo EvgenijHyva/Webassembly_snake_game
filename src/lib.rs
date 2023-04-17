@@ -16,7 +16,7 @@ pub struct WorldMap {
 	size: usize,
 	snake: Snake,
 	next_cell: Option<SnakeCell>,
-	reward_cell: Option<usize>,
+	reward_cell: RewardCell,
 	status: Option<GameStatus>,
 	points: usize
 }
@@ -26,7 +26,7 @@ impl WorldMap {
 	pub fn new(size: usize, snake_idx: usize) -> WorldMap {
 		let snake_body_size: usize = 3;
 		let snake = Snake::new(snake_idx, snake_body_size);
-		let reward_cell = WorldMap::generate_reward_cell(size * size, &snake.body);
+		let reward_cell: RewardCell = WorldMap::generate_reward_cell(size * size, &snake.body);
 
 		WorldMap {
 			size,
@@ -38,7 +38,7 @@ impl WorldMap {
 		}
 	}
 
-	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> Option<usize> {
+	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> RewardCell {
 		// guard, insure the reward dont generate in snake body
 		let mut reward_cell_idx: usize;
 		loop { 
@@ -47,12 +47,19 @@ impl WorldMap {
 				break;
 			}
 		}
-		Some(reward_cell_idx)
+		let points: usize = 10;
+		let rew_type = RewardType::Yellow;
+		let rewardCell = RewardCell::new(reward_cell_idx, rew_type, points);
+		rewardCell
 	}
 
 	pub fn points(&self) -> usize{
 		self.points
 	}
+
+	pub fn get_reward_color(&self) -> String {
+		String::from("#FFEAAE")
+	} 
 
 	pub fn add_points(&mut self) {
 		//match self.reward_cell_type {
@@ -79,8 +86,12 @@ impl WorldMap {
 		}
 	}
 
-	pub fn reward_cell(&self) -> Option<usize> {
+	pub fn reward_cell(&self) -> RewardCell {
 		self.reward_cell
+	}
+
+	pub fn reward_cell_idx(&self) -> usize {
+		self.reward_cell.idx
 	}
 
 	pub fn size(&self) -> usize {
@@ -167,13 +178,12 @@ impl WorldMap {
 				}
 
 				// consuming reward cell
-				if self.reward_cell == Some(self.snake_head_index()) {
+				if Some(self.reward_cell_idx()) == Some(self.snake_head_index()) {
 		
 					if self.snake_length() < self.get_2d_size() {
 						self.add_points();
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 					} else {  // win condition
-						self.reward_cell = None;
 						self.status = Some(GameStatus::Won)
 					}
 					self.snake.body.push(SnakeCell(self.snake.body[1].0));
@@ -211,16 +221,21 @@ impl Snake {
 	}
 }
 
+#[wasm_bindgen]
+#[derive(Clone, Copy)]
 pub struct RewardCell {
 	idx: usize,
-	reward_type: Option<RewardType>
+	reward_type: Option<RewardType>,
+	points: usize
 }
 
+#[wasm_bindgen]
 impl RewardCell {
-	fn new(idx: usize, reward_type: RewardType) -> RewardCell {
+	fn new(idx: usize, reward_type: RewardType, points: usize) -> RewardCell {
 		RewardCell { 
 			idx, 
-			reward_type: Some(reward_type)
+			reward_type: Some(reward_type),
+			points
 		}
 	}
 }

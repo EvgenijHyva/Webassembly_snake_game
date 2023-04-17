@@ -20,7 +20,8 @@ pub struct WorldMap {
 	status: Option<GameStatus>,
 	points: usize,
 	steps: usize,
-	bonus_points: usize
+	bonus_points: usize,
+	_steps: usize
 }
 
 #[wasm_bindgen]
@@ -38,7 +39,8 @@ impl WorldMap {
 			status: Option::None,
 			points: 0,
 			steps: 10,
-			bonus_points: 0
+			bonus_points: 0,
+			_steps: 7
 		}
 	}
 
@@ -91,6 +93,14 @@ impl WorldMap {
 
 	pub fn bonus_stat(&self) -> usize {
 		self.bonus_points
+	}
+
+	pub fn comming_bonus_by_steps(&self) -> usize {
+		if self.steps > self._steps + 1 {
+			self.steps
+		} else {
+			0
+		}
 	}
 
 	pub fn get_reward_color(&self) -> String {
@@ -226,10 +236,8 @@ impl WorldMap {
 
 				// consuming reward cell
 				if Some(self.reward_cell_idx()) == Some(self.snake_head_index()) {
-					if self.steps > 7 {
-						self.increase_points(self.steps);
-					}
-					self.steps += 7;
+					self.increase_points(self.comming_bonus_by_steps());
+					self.steps += self._steps;
 					self.add_points();
 					if self.snake_length() < self.get_2d_size() {
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);

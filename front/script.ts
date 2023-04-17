@@ -125,6 +125,9 @@ init().then(wasmObj => {
 		const rewardIdx = map.reward_cell_idx();
 		const col = rewardIdx % MAP_SIZE;
 		const row = Math.floor(rewardIdx / MAP_SIZE);
+		const text = map.get_reward_points().toString() + "p";
+		const bonusP = map.comming_bonus_by_steps()
+		const text2 = bonusP ? "+" + bonusP.toString() + "p" : "";
 
 		ctx.beginPath();
 		ctx.fillStyle = map.get_reward_color() || "#FFEAAE";
@@ -133,8 +136,9 @@ init().then(wasmObj => {
 
 		ctx.fillStyle = "white";
 		ctx.font = "15px Arial";
-		const text = map.get_reward_points().toString() + "p";
-		ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.4, row * CELL_SIZE + CELL_SIZE * 0.55);
+		
+		ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.35, row * CELL_SIZE + CELL_SIZE * 0.50);
+		ctx.fillText(text2, col * CELL_SIZE + CELL_SIZE * 0.25, row * CELL_SIZE + CELL_SIZE * 0.65)
 	}
 
 	function drawGameStatus() {

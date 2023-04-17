@@ -91,10 +91,6 @@ impl WorldMap {
 	}
 
 	pub fn add_points(&mut self) {
-		//match self.reward_cell_type {
-		//	Some(RewardType::Yellow) => self.points + 1,
-		//	_ => self.points + 10
-		//};
 		self.points += self.reward_cell.points;
 	}
 

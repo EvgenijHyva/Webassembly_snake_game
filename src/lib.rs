@@ -16,7 +16,7 @@ pub struct WorldMap {
 	size: usize,
 	snake: Snake,
 	next_cell: Option<SnakeCell>,
-	reward_cell: usize,
+	reward_cell: Option<usize>,
 	status: Option<GameStatus>,
 }
 
@@ -35,7 +35,7 @@ impl WorldMap {
 			status: Option::None
 		}
 	}
-	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> usize {
+	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> Option<usize> {
 		// guard, insure the reward dont generate in snake body
 		let mut reward_cell_idx: usize;
 		loop { 
@@ -44,7 +44,7 @@ impl WorldMap {
 				break;
 			}
 		}
-		reward_cell_idx
+		Some(reward_cell_idx)
 	}
 
 	pub fn start_game(&mut self) {
@@ -64,7 +64,7 @@ impl WorldMap {
 		}
 	}
 
-	pub fn reward_cell(&self) -> usize {
+	pub fn reward_cell(&self) -> Option<usize> {
 		self.reward_cell
 	}
 
@@ -152,11 +152,12 @@ impl WorldMap {
 				}
 
 				// consuming reward cell
-				if self.reward_cell == self.snake_head_index() {
+				if self.reward_cell == Some(self.snake_head_index()) {
 		
 					if self.snake_length() < self.get_2d_size() {
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 					} else {  // win condition
+						self.reward_cell = None;
 						self.status = Some(GameStatus::Won)
 					}
 					self.snake.body.push(SnakeCell(self.snake.body[1].0));

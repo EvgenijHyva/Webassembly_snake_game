@@ -18,7 +18,8 @@ pub struct WorldMap {
 	next_cell: Option<SnakeCell>,
 	reward_cell: RewardCell,
 	status: Option<GameStatus>,
-	points: usize
+	points: usize,
+	steps: usize
 }
 
 #[wasm_bindgen]
@@ -34,7 +35,8 @@ impl WorldMap {
 			next_cell: Option::None,
 			reward_cell,
 			status: Option::None,
-			points: 0
+			points: 0,
+			steps: 10
 		}
 	}
 
@@ -131,6 +133,10 @@ impl WorldMap {
 		self.snake.body[0].0 // body vector.
 	}
 
+	pub fn get_steps(&self) -> usize {
+		self.steps
+	}
+
 	pub fn change_snake_direction(&mut self, direction: Direction) {
 		let next_cell = self.generate_next_snake_cell(&direction);
 
@@ -177,8 +183,8 @@ impl WorldMap {
 	pub fn update(&mut self) {
 		match self.status {
 			Some(GameStatus::Played) => {
+				self.steps -= 1;
 				let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
-
 				match self.next_cell {
 					Option::Some(cell) => {
 						self.snake.body[0] = cell; // head
@@ -188,18 +194,24 @@ impl WorldMap {
 						self.snake.body[0] = self.generate_next_snake_cell(&self.snake.direction);
 					}
 				}	
-		
-				let snake_len = self.snake_length();
+				let snake_len: usize = self.snake_length();
 				for i in 1..snake_len {
 					self.snake.body[i] = SnakeCell(temp[i-1].0);
 				}
-		
+				
+				if self.steps == 0 {
+					self.reward_cell.points -= self.reward_cell.points / 3;
+					self.steps = 10;
+				}
+
+
 				if self.snake.body[1..snake_len].contains(&self.snake.body[0]) {
 					self.status = Some(GameStatus::Lost);
 				}
 
 				// consuming reward cell
 				if Some(self.reward_cell_idx()) == Some(self.snake_head_index()) {
+					self.steps += 7;
 					self.add_points();
 					if self.snake_length() < self.get_2d_size() {
 						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);

@@ -7,6 +7,7 @@ init().then(wasmObj => {
 	const gameControlBtn = <HTMLButtonElement> document.getElementById("game-control-btn");
 	const gameStatusContainer = <HTMLDivElement> document.getElementById("game-status");
 	const gamePointsContainer = <HTMLDivElement> document.getElementById("game-points");
+	const gameStepsContainer = <HTMLDivElement> document.getElementById("snake-steps");
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px
@@ -138,6 +139,7 @@ init().then(wasmObj => {
 	function drawGameStatus() {
 		gameStatusContainer.textContent = map.game_status_text();
 		gamePointsContainer.textContent = map.points().toString();
+		gameStepsContainer.textContent = `Points reduce after (${map.get_steps()}) steps.`;
 	}
 
 	function paint() {

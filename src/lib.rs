@@ -34,7 +34,7 @@ impl WorldMap {
 		let snake = Snake::new(snake_idx, snake_body_size);
 		let reward_cell: RewardCell = WorldMap::generate_reward_cell(size * size, &snake.body);
 
-		let trap_steps = now() % size;
+		let trap_steps = now() % size + 2;
 
 		WorldMap {
 			size,
@@ -59,7 +59,7 @@ impl WorldMap {
 				break;
 			}
 		}
-		TrapCell(trap_cell_idx)
+		TrapCell(trap_cell_idx, 5)
 	}
 
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> RewardCell {
@@ -95,6 +95,10 @@ impl WorldMap {
 			None => 0,
 			Some(trap_cell) => trap_cell.0
 		}
+	}
+
+	pub fn destroy_trap_cell(&self) {
+		
 	}
 
 	fn define_reward_points(snake_body: &Vec<SnakeCell>, reward_type: RewardType) -> usize {
@@ -332,7 +336,7 @@ impl RewardCell {
 
 #[wasm_bindgen]
 #[derive(Clone, Copy)]
-pub struct TrapCell(usize);
+pub struct TrapCell(usize, usize);
 
 #[wasm_bindgen]
 #[derive(PartialEq)]

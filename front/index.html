@@ -5,11 +5,16 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Snake game</title>
+	<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 </head>
 <body>
-	<h1>Game</h1>
-	<div class="content-wrapper">
-		Snake game
+	<h1>WASM project</h1>
+	<div class="bg fixed inset-y-0 -inset-x-2/4 opacity-50 z-0 bg-gradient-to-r from-green-100 to-pink-100"></div>
+	<div class="content-wrapper ">
+		<span>Snake game</span>
 		<div class="game-panel">
 			<div class="flex">
 				<div class="label">
@@ -51,7 +56,7 @@
 				<b>p</b>
 			</div>
 		</div>
-		<canvas id="snake-game-canvas"></canvas>
+		<canvas id="snake-game-canvas" class="justify-center h-screen relative z-100"></canvas>
 	</div>
 </body>
 <script src="/script.js" ></script>

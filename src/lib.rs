@@ -8,6 +8,7 @@ static ALLOC: WeeAlloc = WeeAlloc::INIT;
 #[wasm_bindgen(module = "/front/utils/rnd.js")]
 extern {
 	fn rnd(num: usize) -> usize;
+	fn now() -> usize;
 }
 
 
@@ -21,7 +22,9 @@ pub struct WorldMap {
 	points: usize,
 	steps: usize,
 	bonus_points: usize,
-	_steps: usize
+	_steps: usize,
+	trap_steps: usize,
+	trap_cell: Option<TrapCell>
 }
 
 #[wasm_bindgen]
@@ -30,6 +33,8 @@ impl WorldMap {
 		let snake_body_size: usize = 3;
 		let snake = Snake::new(snake_idx, snake_body_size);
 		let reward_cell: RewardCell = WorldMap::generate_reward_cell(size * size, &snake.body);
+
+		let trap_steps = now() % size;
 
 		WorldMap {
 			size,
@@ -40,8 +45,21 @@ impl WorldMap {
 			points: 0,
 			steps: 10,
 			bonus_points: 0,
-			_steps: 7
+			_steps: 7,
+			trap_steps,
+			trap_cell: Option::None,
 		}
+	}
+
+	fn generate_trap_cell(max: usize, snake_body: &Vec<SnakeCell>) -> TrapCell {
+		let mut trap_cell_idx: usize;
+		loop {
+			trap_cell_idx = rnd(max);
+			if !snake_body.contains(&SnakeCell(trap_cell_idx)) {
+				break;
+			}
+		}
+		TrapCell(trap_cell_idx)
 	}
 
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> RewardCell {
@@ -65,6 +83,17 @@ impl WorldMap {
 			8..=12 => RewardType::Red,
 			13..=18 => RewardType::Blue,
 			_ => RewardType::Black
+		}
+	}
+
+	pub fn trap_steps(&self) -> usize {
+		self.trap_steps
+	}
+
+	pub fn trap_cell_idx(&self) -> usize {
+		match self.trap_cell {
+			None => 0,
+			Some(trap_cell) => trap_cell.0
 		}
 	}
 
@@ -300,6 +329,10 @@ impl RewardCell {
 		}
 	}
 }
+
+#[wasm_bindgen]
+#[derive(Clone, Copy)]
+pub struct TrapCell(usize);
 
 #[wasm_bindgen]
 #[derive(PartialEq)]

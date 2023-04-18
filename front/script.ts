@@ -141,6 +141,11 @@ init().then(wasmObj => {
 		ctx.fillText(text2, col * CELL_SIZE + CELL_SIZE * 0.25, row * CELL_SIZE + CELL_SIZE * 0.65)
 	}
 
+	function drawTrap() {
+		console.log(map.trap_steps());
+		console.log("idx", map.trap_cell_idx())
+	}
+
 	function drawGameStatus() {
 		gameStatusContainer.textContent = map.game_status_text();
 		gamePointsContainer.textContent = map.points().toString() ;
@@ -153,6 +158,7 @@ init().then(wasmObj => {
 		drawSnake();
 		drawReward();
 		drawGameStatus();
+		drawTrap();
 	}
 
 	function defineFPS() {

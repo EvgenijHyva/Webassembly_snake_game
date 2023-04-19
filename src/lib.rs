@@ -51,16 +51,6 @@ impl WorldMap {
 		}
 	}
 
-	fn generate_trap_cell(max: usize, snake_body: &Vec<SnakeCell>) -> TrapCell {
-		let mut trap_cell_idx: usize;
-		loop {
-			trap_cell_idx = rnd(max);
-			if !snake_body.contains(&SnakeCell(trap_cell_idx)) {
-				break;
-			}
-		}
-		TrapCell(trap_cell_idx, 5)
-	}
 
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> RewardCell {
 		// guard, insure the reward dont generate in snake body
@@ -86,21 +76,6 @@ impl WorldMap {
 		}
 	}
 
-	pub fn trap_steps(&self) -> usize {
-		self.trap_steps
-	}
-
-	pub fn trap_cell_idx(&self) -> usize {
-		match self.trap_cell {
-			None => 0,
-			Some(trap_cell) => trap_cell.0
-		}
-	}
-
-	pub fn destroy_trap_cell(&self) {
-		
-	}
-
 	fn define_reward_points(snake_body: &Vec<SnakeCell>, reward_type: RewardType) -> usize {
 		let points: usize = snake_body.len();
 		match reward_type {
@@ -108,6 +83,71 @@ impl WorldMap {
 			RewardType::Red => points + points * 2,
 			RewardType::Blue => points + points * 3,
 			RewardType::Black => points + points * 4 + 55,
+		}
+	}
+
+	pub fn trap_steps(&self) -> usize {
+		self.trap_steps
+	}
+
+	pub fn trap_cell_idx(&self) -> usize {
+		match &self.trap_cell {
+			None => 0,
+			Some(trap_cell) => trap_cell.idx
+		}
+	}
+
+	pub fn trap_color(&self) -> String {
+		match &self.trap_cell {
+			None => String::from("None"),
+			Some(trap_cell) => String::from(&trap_cell.color)
+		}
+	}
+
+	pub fn trap_live(&self) -> usize { // TODO
+		match &self.trap_cell { 
+			None => 0,
+			Some(trap_cell) => trap_cell.live
+		}
+	}
+
+	pub fn check_trap(&mut self) {
+		if let Some(ref trap_cell) = &self.trap_cell {
+			let mut new_trap_cell = trap_cell.clone();
+			new_trap_cell.live -= 1;
+			if trap_cell.live == 0 {
+				self.trap_cell = None;
+			} else {
+				self.trap_cell = Some(new_trap_cell);
+			}
+		}
+	}
+
+	fn generate_trap_cell(max: usize, snake_body: &Vec<SnakeCell>) -> TrapCell {
+		let mut trap_cell_idx: usize;
+		loop {
+			trap_cell_idx = rnd(max);
+			if !snake_body.contains(&SnakeCell(trap_cell_idx)) {
+				break;
+			}
+		}
+		let rnd_num = rnd(4);
+		let live: usize = rnd(5);
+		let color = match rnd_num {
+			0 => String::from("#FFEAAE"),
+			1 => String::from("chocolate"),
+			2 => String::from("blueviolet"),
+			_ => String::from("brown"),
+		};
+		TrapCell::new(trap_cell_idx, live, color)
+	}
+
+	pub fn recreate_trap_cell(&mut self) {
+		self.trap_cell = None;
+		self.trap_cell = Some(WorldMap::generate_trap_cell(self.get_2d_size(), &self.snake.body));
+		if let Some(trap_cell) = &self.trap_cell {
+			let new_steps = trap_cell.live + now() % self.size;
+			self.trap_steps += new_steps;
 		}
 	}
 
@@ -262,6 +302,12 @@ impl WorldMap {
 					self.reduce_points();
 				}
 
+				self.check_trap();
+				if self.trap_steps == 0 {
+					self.recreate_trap_cell();
+				} else {
+					self.trap_steps -= 1;
+				}
 
 				if self.snake.body[1..snake_len].contains(&self.snake.body[0]) {
 					self.status = Some(GameStatus::Lost);
@@ -335,8 +381,26 @@ impl RewardCell {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Copy)]
-pub struct TrapCell(usize, usize);
+#[derive(Clone)]
+pub struct TrapCell{
+	idx: usize,
+	live: usize,
+	color: String
+}
+
+#[wasm_bindgen]
+impl TrapCell {
+	pub fn new(idx: usize, live: usize, color: String) -> TrapCell {
+		TrapCell { 
+			idx, 
+			live, 
+			color 
+		}
+	}
+	pub fn copy(&self) -> TrapCell {
+		self.clone()
+	}
+}
 
 #[wasm_bindgen]
 #[derive(PartialEq)]

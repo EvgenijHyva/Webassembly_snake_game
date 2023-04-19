@@ -142,8 +142,18 @@ init().then(wasmObj => {
 	}
 
 	function drawTrap() {
-		console.log(map.trap_steps());
-		console.log("idx", map.trap_cell_idx())
+		const trapInx = map.trap_cell_idx();
+		console.log(map.trap_steps(), map.trap_color(), map.trap_live());
+		console.log("trap idx", trapInx )
+		const trap_color = map.trap_color();
+		const col = trapInx % MAP_SIZE;
+		const row = Math.floor(trapInx / MAP_SIZE);
+		if (trapInx !== 0 ) {
+			ctx.beginPath();
+			ctx.fillStyle = trap_color !== "None" ? trap_color : "red";
+			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
+			ctx.fill();
+		}
 	}
 
 	function drawGameStatus() {

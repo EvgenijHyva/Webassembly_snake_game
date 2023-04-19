@@ -14,7 +14,7 @@ init().then(wasmObj => {
 	const CELL_SIZE = 100; // px
 	const MAP_SIZE = 8;
 	const snakeSpawnIdx = Date.now() % (MAP_SIZE * MAP_SIZE);
-	const SPEED = 1500; // ms
+	const SPEED = 2000; // ms
 
 	const map = WorldMap.new(MAP_SIZE, snakeSpawnIdx);
 
@@ -143,8 +143,8 @@ init().then(wasmObj => {
 
 	function drawTrap() {
 		const trapInx = map.trap_cell_idx();
-		//console.log(map.trap_steps(), map.trap_color(), map.trap_live());
-		//console.log("trap idx", trapInx )
+		console.log(map.trap_steps(), map.trap_color(), map.trap_live());
+		console.log("trap idx", trapInx )
 		const trap_color = map.trap_color();
 		const col = trapInx % MAP_SIZE;
 		const row = Math.floor(trapInx / MAP_SIZE);

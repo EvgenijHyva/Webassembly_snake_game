@@ -86,6 +86,21 @@ impl WorldMap {
 		}
 	}
 
+	fn consume_reward(&mut self) {
+		let bonus = self.comming_bonus_by_steps();
+		if bonus != 0 {
+			self.increase_points(bonus + 1);
+		}
+		self.steps += self._steps;
+		self.add_points();
+		if self.snake_length() < self.get_2d_size() {
+			self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
+		} else {  // win condition
+			self.status = Some(GameStatus::Won)
+		}
+		self.snake.body.push(SnakeCell(self.snake.body[1].0));
+	}
+
 	pub fn trap_steps(&self) -> usize {
 		self.trap_steps
 	}
@@ -121,19 +136,25 @@ impl WorldMap {
 		}
 		if self.snake_head_index() == self.trap_cell_idx() {
 			self.consuming_trap();
+		}
+
+		if self.trap_steps == 0 {
+			self.recreate_trap_cell();
+		} else {
+			self.trap_steps -= 1;
 		} 
+	}
+	
+	pub fn consuming_trap(&mut self) {
+		self.points /= 2;
+		self.snake.body.pop();
+		self.clear_trap_cell();
 	}
 
 	fn clear_trap_cell(&mut self) {
 		self.trap_cell = None;
 	}
-
-	pub fn consuming_trap(&mut self) {
-		self.points = 0;
-		//self.snake.body.pop();
-		self.clear_trap_cell();
-	}
-
+	
 	fn generate_trap_cell(max: usize, snake_body: &Vec<SnakeCell>) -> TrapCell {
 		let mut trap_cell_idx: usize;
 		loop {
@@ -143,7 +164,7 @@ impl WorldMap {
 			}
 		}
 		let rnd_num = rnd(4);
-		let live: usize = rnd(10);
+		let live: usize = rnd(10) + 10;
 		let color = match rnd_num {
 			0 => String::from("#FFEAAE"),
 			1 => String::from("chocolate"),
@@ -154,6 +175,7 @@ impl WorldMap {
 	}
 
 	pub fn recreate_trap_cell(&mut self) {
+		if self.snake_length() < 3 { return; }
 		self.trap_cell = None;
 		self.trap_cell = Some(WorldMap::generate_trap_cell(self.get_2d_size(), &self.snake.body));
 		if let Some(trap_cell) = &self.trap_cell {
@@ -202,7 +224,7 @@ impl WorldMap {
 		self.reward_cell.points
 	}
 
-	pub fn add_points(&mut self) {
+	fn add_points(&mut self) {
 		self.points += self.reward_cell.points;
 	}
 
@@ -313,32 +335,15 @@ impl WorldMap {
 					self.reduce_points();
 				}
 
-				self.check_trap();
-				if self.trap_steps == 0 {
-					self.recreate_trap_cell();
-				} else {
-					self.trap_steps -= 1;
-				}
-
 				if self.snake.body[1..snake_len].contains(&self.snake.body[0]) {
 					self.status = Some(GameStatus::Lost);
 				}
 
 				// consuming reward cell
 				if Some(self.reward_cell_idx()) == Some(self.snake_head_index()) {
-					let bonus = self.comming_bonus_by_steps();
-					if bonus != 0 {
-						self.increase_points(bonus + 1);
-					}
-					self.steps += self._steps;
-					self.add_points();
-					if self.snake_length() < self.get_2d_size() {
-						self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
-					} else {  // win condition
-						self.status = Some(GameStatus::Won)
-					}
-					self.snake.body.push(SnakeCell(self.snake.body[1].0));
+					self.consume_reward();
 				}
+				self.check_trap();
 			},
 			None => {
 

@@ -107,7 +107,7 @@ impl WorldMap {
 
 	pub fn trap_cell_idx(&self) -> usize  {
 		match &self.trap_cell {
-			None => 1000,
+			None => 1000000,
 			Some(trap_cell) => trap_cell.idx
 		}
 	}

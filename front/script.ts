@@ -122,7 +122,7 @@ init().then(wasmObj => {
 	}
 
 	function drawReward() {
-		const rewardIdx = map.reward_cell_idx();
+		const rewardIdx = map.reward_cell_idx() ;
 		const col = rewardIdx % MAP_SIZE;
 		const row = Math.floor(rewardIdx / MAP_SIZE);
 		const text = map.get_reward_points().toString() + "p";
@@ -143,14 +143,19 @@ init().then(wasmObj => {
 
 	function drawTrap() {
 		const trapInx = map.trap_cell_idx();
+		console.log(trapInx)
 		const trap_color = map.trap_color();
 		const col = trapInx % MAP_SIZE;
 		const row = Math.floor(trapInx / MAP_SIZE);
-		if (trapInx !== 0 ) {
+		if (trapInx !== 1000000 ) {
 			ctx.beginPath();
 			ctx.fillStyle = trap_color !== "None" ? trap_color : "red";
 			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
 			ctx.fill();
+
+			ctx.fillStyle = "red";
+			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
+			ctx.stroke();		
 		}
 	}
 

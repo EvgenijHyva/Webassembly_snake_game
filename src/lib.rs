@@ -112,16 +112,14 @@ impl WorldMap {
 	}
 
 	pub fn check_trap(&mut self) {
-		if let Some(ref trap_cell) = &self.trap_cell {
-			let mut new_trap_cell = trap_cell.clone();
-			new_trap_cell.live -= 1;
+		if let Some(trap_cell) = &mut self.trap_cell {
+			trap_cell.live -= 1;
 			if trap_cell.live == 0 {
 				self.trap_cell = None;
-			} else {
-				self.trap_cell = Some(new_trap_cell);
 			}
 		}
 	}
+
 
 	fn generate_trap_cell(max: usize, snake_body: &Vec<SnakeCell>) -> TrapCell {
 		let mut trap_cell_idx: usize;
@@ -132,7 +130,7 @@ impl WorldMap {
 			}
 		}
 		let rnd_num = rnd(4);
-		let live: usize = rnd(5);
+		let live: usize = rnd(10);
 		let color = match rnd_num {
 			0 => String::from("#FFEAAE"),
 			1 => String::from("chocolate"),

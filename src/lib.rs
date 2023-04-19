@@ -90,9 +90,9 @@ impl WorldMap {
 		self.trap_steps
 	}
 
-	pub fn trap_cell_idx(&self) -> usize {
+	pub fn trap_cell_idx(&self) -> usize  {
 		match &self.trap_cell {
-			None => 0,
+			None => 1000,
 			Some(trap_cell) => trap_cell.idx
 		}
 	}
@@ -114,12 +114,25 @@ impl WorldMap {
 	pub fn check_trap(&mut self) {
 		if let Some(trap_cell) = &mut self.trap_cell {
 			trap_cell.live -= 1;
+			
 			if trap_cell.live == 0 {
-				self.trap_cell = None;
+				self.clear_trap_cell()
 			}
 		}
+		if self.snake_head_index() == self.trap_cell_idx() {
+			self.consuming_trap();
+		} 
 	}
 
+	fn clear_trap_cell(&mut self) {
+		self.trap_cell = None;
+	}
+
+	pub fn consuming_trap(&mut self) {
+		self.points = 0;
+		//self.snake.body.pop();
+		self.clear_trap_cell();
+	}
 
 	fn generate_trap_cell(max: usize, snake_body: &Vec<SnakeCell>) -> TrapCell {
 		let mut trap_cell_idx: usize;
@@ -130,7 +143,7 @@ impl WorldMap {
 			}
 		}
 		let rnd_num = rnd(4);
-		let live: usize = rnd(10);
+		let live: usize = rnd(10) + 100;
 		let color = match rnd_num {
 			0 => String::from("#FFEAAE"),
 			1 => String::from("chocolate"),

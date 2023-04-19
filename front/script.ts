@@ -14,7 +14,7 @@ init().then(wasmObj => {
 	const CELL_SIZE = 100; // px
 	const MAP_SIZE = 8;
 	const snakeSpawnIdx = Date.now() % (MAP_SIZE * MAP_SIZE);
-	const SPEED = 2000; // ms
+	const SPEED = 1700; // ms
 
 	const map = WorldMap.new(MAP_SIZE, snakeSpawnIdx);
 
@@ -143,8 +143,6 @@ init().then(wasmObj => {
 
 	function drawTrap() {
 		const trapInx = map.trap_cell_idx();
-		console.log(map.trap_steps(), map.trap_color(), map.trap_live());
-		console.log("trap idx", trapInx )
 		const trap_color = map.trap_color();
 		const col = trapInx % MAP_SIZE;
 		const row = Math.floor(trapInx / MAP_SIZE);
@@ -177,23 +175,23 @@ init().then(wasmObj => {
 			case snakeLength <= 6:
 				return 3;
 			case snakeLength > 6 && snakeLength <= 9:
-				return 4;
+				return 3.5;
 			case snakeLength > 9 && snakeLength <= 12:
-				return 5;
+				return 4;
 			case snakeLength > 12 && snakeLength <= 15:
-				return 6;
+				return 4.5;
 			case snakeLength > 15 && snakeLength <= 18:
-				return 7;
-			case snakeLength > 18 && snakeLength <= 25:
-				return 8;
-			case snakeLength > 25 && snakeLength <= 30:
-				return 9;
-			case snakeLength > 30 && snakeLength <= 35:
-				return 10;
-			case snakeLength > 35 && snakeLength <= 40:
-				return 11;
-			default:
 				return 5;
+			case snakeLength > 18 && snakeLength <= 25:
+				return 5.3;
+			case snakeLength > 25 && snakeLength <= 30:
+				return 5.6;
+			case snakeLength > 30 && snakeLength <= 35:
+				return 6.1;
+			case snakeLength > 35 && snakeLength <= 40:
+				return 7;
+			default:
+				return 4.8;
 		}
 	}
 

@@ -143,8 +143,8 @@ init().then(wasmObj => {
 
 	function drawTrap() {
 		const trapInx = map.trap_cell_idx();
-		console.log(map.trap_steps(), map.trap_color(), map.trap_live());
-		console.log("trap idx", trapInx )
+		//console.log(map.trap_steps(), map.trap_color(), map.trap_live());
+		//console.log("trap idx", trapInx )
 		const trap_color = map.trap_color();
 		const col = trapInx % MAP_SIZE;
 		const row = Math.floor(trapInx / MAP_SIZE);

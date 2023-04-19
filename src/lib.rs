@@ -143,7 +143,7 @@ impl WorldMap {
 			}
 		}
 		let rnd_num = rnd(4);
-		let live: usize = rnd(10) + 100;
+		let live: usize = rnd(10);
 		let color = match rnd_num {
 			0 => String::from("#FFEAAE"),
 			1 => String::from("chocolate"),

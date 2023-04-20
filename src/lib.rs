@@ -27,6 +27,7 @@ pub struct WorldMap {
 	trap_cell: Option<TrapCell>,
 	life_steps: usize,
 	super_bonus_cell: Option<SuperBonus>,
+	super_bonus_steps: usize,
 	consumed_rewards: usize,
 	consumed_traps: usize,
 	consumed_super_bonuses: usize
@@ -40,6 +41,7 @@ impl WorldMap {
 		let reward_cell: RewardCell = WorldMap::generate_reward_cell(size * size, &snake.body);
 
 		let trap_steps = now() % size + 2;
+		let super_bonus_steps = WorldMap::gen_super_bonus_steps(size);
 
 		WorldMap {
 			size,
@@ -55,6 +57,7 @@ impl WorldMap {
 			trap_cell: Option::None,
 			life_steps: 0,
 			super_bonus_cell: Option::None,
+			super_bonus_steps,
 			consumed_rewards: 0,
 			consumed_traps: 0,
 			consumed_super_bonuses: 0
@@ -69,7 +72,34 @@ impl WorldMap {
 				break;
 			}
 		}
-		SuperBonus(cell_idx)
+		let live = 5;
+		SuperBonus(cell_idx, live)
+	}
+
+	fn check_super_bonus(&mut self) {
+		self.super_bonus_steps -= 1;
+		if self.super_bonus_steps != 0 {
+			return;
+		}
+		if self.snake_length() < self.get_2d_size() - self.size {
+			self.super_bonus_cell = Some(WorldMap::generate_super_bonus(self.get_2d_size(), &self.snake.body));
+			self.super_bonus_steps = WorldMap::gen_super_bonus_steps(self.size);
+		} 
+	}
+
+	fn gen_super_bonus_steps(size: usize) -> usize {
+		rnd(size * 3)
+	}
+
+	pub fn super_bonus_cell_idx(&self) -> usize  {
+		match &self.super_bonus_cell {
+			None => 1000000,
+			Some(super_bonus) => super_bonus.0
+		}
+	}
+
+	pub fn super_bonus_steps(&self) -> usize {
+		self.super_bonus_steps
 	}
 
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> RewardCell {
@@ -369,6 +399,8 @@ impl WorldMap {
 					self.snake.body[i] = SnakeCell(temp[i-1].0);
 				}
 				
+				self.check_super_bonus();
+
 				if self.steps == 0 {
 					self.reduce_points();
 				}
@@ -457,7 +489,7 @@ impl TrapCell {
 }
 
 #[wasm_bindgen]
-pub struct SuperBonus(usize);
+pub struct SuperBonus(usize, usize);
 
 #[wasm_bindgen]
 #[derive(PartialEq)]

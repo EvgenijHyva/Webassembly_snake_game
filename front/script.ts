@@ -142,10 +142,11 @@ init().then(wasmObj => {
 
 	function drawTrap() {
 		const trapInx = map.trap_cell_idx();
-		const trap_color = map.trap_color();
-		const col = trapInx % MAP_SIZE;
-		const row = Math.floor(trapInx / MAP_SIZE);
 		if (trapInx !== 1000000 ) {
+			const trap_color = map.trap_color();
+			const col = trapInx % MAP_SIZE;
+			const row = Math.floor(trapInx / MAP_SIZE);
+
 			ctx.beginPath();
 			ctx.fillStyle = trap_color !== "None" ? trap_color : "red";
 			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
@@ -162,6 +163,44 @@ init().then(wasmObj => {
 		}
 	}
 
+	function drawSuperBonus() {
+		const superBonusIdx = map.super_bonus_cell_idx();
+		if (superBonusIdx !== 1000000 ) {
+			const col = superBonusIdx % MAP_SIZE;
+			const row = Math.floor(superBonusIdx / MAP_SIZE);
+
+			const points = 5;
+			const radius = CELL_SIZE / 2;
+			const angle = Math.PI / points;
+			const centerX = col * CELL_SIZE + .5 * CELL_SIZE;
+			const centerY = row * CELL_SIZE + .5 * CELL_SIZE;
+			ctx.fillStyle = "yellow";
+			// circle
+			ctx.beginPath();
+			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
+			ctx.fill();
+			// start
+			ctx.beginPath();
+			ctx.strokeStyle = "red"
+			ctx.moveTo(centerX + radius, centerY - radius );
+			for (let i = 0; i <= points; i++) {
+				const angle = Math.PI * 2 * i / 5 - Math.PI / 2;
+				const x = centerX + Math.cos(angle) * radius;
+				const y = centerY + Math.sin(angle) * radius;
+				ctx.lineTo(x, y);
+				const innerAngle = Math.PI * 2 * (i + 0.5) / 5 - Math.PI / 2;
+				const innerX = centerX + Math.cos(innerAngle) * radius / 2;
+				const innerY = centerY + Math.sin(innerAngle) * radius / 2;
+				ctx.lineTo(innerX, innerY);
+			}
+			ctx.stroke();
+		}
+
+
+		console.log(map.super_bonus_cell_idx(), "idx");
+		console.log(map.super_bonus_steps(), "steps")
+	}
+
 	function drawGameStatus() {
 		gameStatusContainer.textContent = map.game_status_text();
 		gamePointsContainer.textContent = map.points().toString() ;
@@ -175,6 +214,7 @@ init().then(wasmObj => {
 		drawReward();
 		drawGameStatus();
 		drawTrap();
+		drawSuperBonus();
 		if (map.game_status() !== GameStatus.Played) {
 			console.log(map.get_game_stat().life_steps);
 		}

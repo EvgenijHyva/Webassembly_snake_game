@@ -1,6 +1,5 @@
-import { match } from "assert";
 import "./styles.css";
-import init, { WorldMap, Direction, GameStatus } from "snake_game";
+import init, { WorldMap, Direction, GameStatus, GameStat } from "snake_game";
 
 init().then(wasmObj => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
@@ -152,6 +151,11 @@ init().then(wasmObj => {
 			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
 			ctx.fill();
 
+			ctx.fillStyle = "white";
+			ctx.font = "15px Arial";
+			const text = map.trap_live().toString() + "p";
+			ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.45, row * CELL_SIZE + CELL_SIZE * 0.55);
+
 			ctx.fillStyle = "red";
 			ctx.arc(col * CELL_SIZE + .5 * CELL_SIZE, row * CELL_SIZE + .5 * CELL_SIZE, CELL_SIZE / 2, 0, 2 * Math.PI);
 			ctx.stroke();		
@@ -171,6 +175,9 @@ init().then(wasmObj => {
 		drawReward();
 		drawGameStatus();
 		drawTrap();
+		if (map.game_status() !== GameStatus.Played) {
+			console.log(map.get_game_stat().life_steps);
+		}
 	}
 
 	function defineFPS() {

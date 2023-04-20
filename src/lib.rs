@@ -24,7 +24,11 @@ pub struct WorldMap {
 	bonus_points: usize,
 	_steps: usize,
 	trap_steps: usize,
-	trap_cell: Option<TrapCell>
+	trap_cell: Option<TrapCell>,
+	life_steps: usize,
+	consumed_rewards: usize,
+	consumed_traps: usize,
+	super_bonuses: usize
 }
 
 #[wasm_bindgen]
@@ -48,6 +52,10 @@ impl WorldMap {
 			_steps: 7,
 			trap_steps,
 			trap_cell: Option::None,
+			life_steps: 0,
+			consumed_rewards: 0,
+			consumed_traps: 0,
+			super_bonuses: 0
 		}
 	}
 
@@ -87,6 +95,7 @@ impl WorldMap {
 	}
 
 	fn consume_reward(&mut self) {
+		self.consumed_rewards += 1;
 		let bonus = self.comming_bonus_by_steps();
 		if bonus != 0 {
 			self.increase_points(bonus + 1);
@@ -126,7 +135,7 @@ impl WorldMap {
 		}
 	}
 
-	pub fn check_trap(&mut self) {
+	fn check_trap(&mut self) {
 		if let Some(trap_cell) = &mut self.trap_cell {
 			trap_cell.live -= 1;
 			
@@ -145,8 +154,13 @@ impl WorldMap {
 		} 
 	}
 	
-	pub fn consuming_trap(&mut self) {
-		self.points /= 2;
+	fn consuming_trap(&mut self) {
+		self.consumed_traps += 1;
+		if self.consumed_traps % 5 == 0 {
+			self.points += self.bonus_points;
+		} else {
+			self.points /= 2;
+		}
 		self.snake.body.pop();
 		self.clear_trap_cell();
 	}
@@ -219,6 +233,17 @@ impl WorldMap {
 			_ => String::from("cadetblue")
 		}
 	} 
+
+	pub fn get_game_stat(&self) -> GameStat {
+		GameStat {
+			consumed_rewards: self.consumed_rewards,
+			consumed_traps: self.consumed_traps,
+			life_steps: self.life_steps,
+			bonus: self.bonus_points,
+			snake_size: self.snake_length(),
+			super_bonuses: self.super_bonuses
+		}
+	}
 
 	pub fn get_reward_points(&self) -> usize {
 		self.reward_cell.points
@@ -315,6 +340,7 @@ impl WorldMap {
 	pub fn update(&mut self) {
 		match self.status {
 			Some(GameStatus::Played) => {
+				self.life_steps += 1;
 				self.steps -= 1;
 				let temp = self.snake.body.clone(); // need to use derive(Clone) for cloning
 				match self.next_cell {
@@ -434,4 +460,14 @@ pub enum  GameStatus {
 #[derive(PartialEq, Clone, Copy)]
 pub enum RewardType {
 	Yellow, Red, Blue, Black
+}
+
+#[wasm_bindgen]
+pub struct GameStat {
+	pub consumed_rewards: usize,
+	pub consumed_traps: usize,
+	pub life_steps: usize,
+	pub bonus: usize,
+	pub snake_size: usize,
+	pub super_bonuses: usize
 }

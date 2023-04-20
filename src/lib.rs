@@ -72,12 +72,46 @@ impl WorldMap {
 				break;
 			}
 		}
-		let live = 5;
-		SuperBonus(cell_idx, live)
+		let life = 5;
+		SuperBonus(cell_idx, life)
+	}
+
+	pub fn super_bonus_cell_life(&self) -> usize {
+		match &self.super_bonus_cell { 
+			None => 0,
+			Some(super_bonus_cell) => super_bonus_cell.1
+		}
+	}
+
+	pub fn super_bonus_consumption(&mut self) {
+		self.bonus_points += self.super_bonus_points();
+		self.points += self.super_bonus_points();
+		self.super_bonus_cell = None;
+	}
+
+	pub fn super_bonus_points(&self) -> usize{
+		300 + self.snake_length() * 10 
 	}
 
 	fn check_super_bonus(&mut self) {
+		if self.snake_head_index() == self.super_bonus_cell_idx() {
+			self.super_bonus_consumption();
+		}
+
+
+		if let Some(super_bonus_cell) = &mut self.super_bonus_cell {
+			super_bonus_cell.1 -= 1;
+
+			if self.super_bonus_steps < super_bonus_cell.1 {
+				self.super_bonus_steps = super_bonus_cell.1
+			}
+
+			if super_bonus_cell.1 == 0 {
+				self.super_bonus_cell = None;
+			}
+		} 
 		self.super_bonus_steps -= 1;
+
 		if self.super_bonus_steps != 0 {
 			return;
 		}
@@ -86,9 +120,10 @@ impl WorldMap {
 			self.super_bonus_steps = WorldMap::gen_super_bonus_steps(self.size);
 		} 
 	}
+	
 
 	fn gen_super_bonus_steps(size: usize) -> usize {
-		rnd(size * 3)
+		rnd(size * 2) + 4
 	}
 
 	pub fn super_bonus_cell_idx(&self) -> usize  {
@@ -170,18 +205,18 @@ impl WorldMap {
 		}
 	}
 
-	pub fn trap_live(&self) -> usize { // TODO
+	pub fn trap_life(&self) -> usize { // TODO
 		match &self.trap_cell { 
 			None => 0,
-			Some(trap_cell) => trap_cell.live
+			Some(trap_cell) => trap_cell.life
 		}
 	}
 
 	fn check_trap(&mut self) {
 		if let Some(trap_cell) = &mut self.trap_cell {
-			trap_cell.live -= 1;
+			trap_cell.life -= 1;
 			
-			if trap_cell.live == 0 {
+			if trap_cell.life == 0 {
 				self.clear_trap_cell()
 			}
 		}
@@ -220,22 +255,22 @@ impl WorldMap {
 			}
 		}
 		let rnd_num = rnd(4);
-		let live: usize = rnd(10) + 2;
+		let life: usize = rnd(10) + 2;
 		let color = match rnd_num {
 			0 => String::from("#FFEAAE"),
 			1 => String::from("chocolate"),
 			2 => String::from("blueviolet"),
 			_ => String::from("brown"),
 		};
-		TrapCell::new(trap_cell_idx, live, color)
+		TrapCell::new(trap_cell_idx, life, color)
 	}
 
 	pub fn recreate_trap_cell(&mut self) {
-		if self.snake_length() < 3 { return; }
+		if self.snake_length() < 3 || self.snake_length() > self.get_2d_size() - 10 { return; }
 		self.trap_cell = None;
 		self.trap_cell = Some(WorldMap::generate_trap_cell(self.get_2d_size(), &self.snake.body));
 		if let Some(trap_cell) = &self.trap_cell {
-			let new_steps = trap_cell.live + now() % self.size;
+			let new_steps = trap_cell.life + now() % self.size;
 			self.trap_steps += new_steps;
 		}
 	}
@@ -379,7 +414,18 @@ impl WorldMap {
 		};
 	}
 
+	fn consumed_items(&self) -> usize {
+		self.consumed_traps + self.consumed_rewards + self.consumed_super_bonuses 
+	}
+
+	fn check_activity(&mut self) {
+		if self.life_steps % 100 == 0 && self.consumed_items() < self.life_steps / 20 {
+			self.status = Some(GameStatus::Lost)
+		}
+	}
+
 	pub fn update(&mut self) {
+		self.check_activity();
 		match self.status {
 			Some(GameStatus::Played) => {
 				self.life_steps += 1;
@@ -470,16 +516,16 @@ impl RewardCell {
 #[derive(Clone)]
 pub struct TrapCell{
 	idx: usize,
-	live: usize,
+	life: usize,
 	color: String
 }
 
 #[wasm_bindgen]
 impl TrapCell {
-	pub fn new(idx: usize, live: usize, color: String) -> TrapCell {
+	pub fn new(idx: usize, life: usize, color: String) -> TrapCell {
 		TrapCell { 
 			idx, 
-			live, 
+			life, 
 			color 
 		}
 	}

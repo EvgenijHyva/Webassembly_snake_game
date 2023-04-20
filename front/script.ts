@@ -154,7 +154,7 @@ init().then(wasmObj => {
 
 			ctx.fillStyle = "white";
 			ctx.font = "15px Arial";
-			const text = map.trap_live().toString() + "p";
+			const text = map.trap_life().toString() + "p";
 			ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.45, row * CELL_SIZE + CELL_SIZE * 0.55);
 
 			ctx.fillStyle = "red";
@@ -197,14 +197,11 @@ init().then(wasmObj => {
 
 			ctx.fillStyle = "red";
 			ctx.font = "15px Arial";
-			const text = "1000".toString() + "p";
+			const text = map.super_bonus_points().toString() + "p";
 			ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.3, row * CELL_SIZE + CELL_SIZE * 0.45);
-			const text2 = map.super_bonus_steps().toString();
+			const text2 = map.super_bonus_cell_life().toString();
 			ctx.fillText(text2, col * CELL_SIZE + CELL_SIZE * 0.4, row * CELL_SIZE + CELL_SIZE * 0.65);
 		}
-
-
-		console.log(map.super_bonus_cell_idx(), "idx",map.super_bonus_steps(), "steps");
 	}
 
 	function drawGameStatus() {

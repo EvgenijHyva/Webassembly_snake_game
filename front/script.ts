@@ -164,7 +164,7 @@ init().then(wasmObj => {
 	}
 
 	function drawSuperBonus() {
-		const superBonusIdx = 10|| map.super_bonus_cell_idx();
+		const superBonusIdx = map.super_bonus_cell_idx();
 		if (superBonusIdx !== 1000000 ) {
 			const col = superBonusIdx % MAP_SIZE;
 			const row = Math.floor(superBonusIdx / MAP_SIZE);
@@ -204,8 +204,7 @@ init().then(wasmObj => {
 		}
 
 
-		console.log(map.super_bonus_cell_idx(), "idx");
-		console.log(map.super_bonus_steps(), "steps")
+		console.log(map.super_bonus_cell_idx(), "idx",map.super_bonus_steps(), "steps");
 	}
 
 	function drawGameStatus() {

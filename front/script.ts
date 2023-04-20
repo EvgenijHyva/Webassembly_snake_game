@@ -164,7 +164,7 @@ init().then(wasmObj => {
 	}
 
 	function drawSuperBonus() {
-		const superBonusIdx = map.super_bonus_cell_idx();
+		const superBonusIdx = 10|| map.super_bonus_cell_idx();
 		if (superBonusIdx !== 1000000 ) {
 			const col = superBonusIdx % MAP_SIZE;
 			const row = Math.floor(superBonusIdx / MAP_SIZE);
@@ -194,6 +194,13 @@ init().then(wasmObj => {
 				ctx.lineTo(innerX, innerY);
 			}
 			ctx.stroke();
+
+			ctx.fillStyle = "red";
+			ctx.font = "15px Arial";
+			const text = "1000".toString() + "p";
+			ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.3, row * CELL_SIZE + CELL_SIZE * 0.45);
+			const text2 = map.super_bonus_steps().toString();
+			ctx.fillText(text2, col * CELL_SIZE + CELL_SIZE * 0.4, row * CELL_SIZE + CELL_SIZE * 0.65);
 		}
 
 

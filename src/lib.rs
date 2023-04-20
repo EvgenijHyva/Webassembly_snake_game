@@ -26,9 +26,10 @@ pub struct WorldMap {
 	trap_steps: usize,
 	trap_cell: Option<TrapCell>,
 	life_steps: usize,
+	super_bonus_cell: Option<SuperBonus>,
 	consumed_rewards: usize,
 	consumed_traps: usize,
-	super_bonuses: usize
+	consumed_super_bonuses: usize
 }
 
 #[wasm_bindgen]
@@ -53,12 +54,23 @@ impl WorldMap {
 			trap_steps,
 			trap_cell: Option::None,
 			life_steps: 0,
+			super_bonus_cell: Option::None,
 			consumed_rewards: 0,
 			consumed_traps: 0,
-			super_bonuses: 0
+			consumed_super_bonuses: 0
 		}
 	}
 
+	fn generate_super_bonus(max: usize, snake_body: &Vec<SnakeCell>) -> SuperBonus {
+		let mut cell_idx: usize;
+		loop { 
+			cell_idx = rnd(max);
+			if !snake_body.contains(&SnakeCell(cell_idx)) {
+				break;
+			}
+		}
+		SuperBonus(cell_idx)
+	}
 
 	fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> RewardCell {
 		// guard, insure the reward dont generate in snake body
@@ -241,7 +253,7 @@ impl WorldMap {
 			life_steps: self.life_steps,
 			bonus: self.bonus_points,
 			snake_size: self.snake_length(),
-			super_bonuses: self.super_bonuses
+			super_bonuses: self.consumed_super_bonuses,
 		}
 	}
 
@@ -443,6 +455,9 @@ impl TrapCell {
 		self.clone()
 	}
 }
+
+#[wasm_bindgen]
+pub struct SuperBonus(usize);
 
 #[wasm_bindgen]
 #[derive(PartialEq)]

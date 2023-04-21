@@ -1,5 +1,5 @@
 import "./styles.css";
-import init, { WorldMap, Direction, GameStatus, GameStat } from "snake_game";
+import init, { WorldMap, Direction, GameStatus, GameStat, MovingTarget } from "snake_game";
 
 init().then(wasmObj => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
@@ -171,7 +171,6 @@ init().then(wasmObj => {
 
 			const points = 5;
 			const radius = CELL_SIZE / 2;
-			const angle = Math.PI / points;
 			const centerX = col * CELL_SIZE + .5 * CELL_SIZE;
 			const centerY = row * CELL_SIZE + .5 * CELL_SIZE;
 			ctx.fillStyle = "yellow";
@@ -204,6 +203,26 @@ init().then(wasmObj => {
 		}
 	}
 
+	function drawMovingTarget() {
+		const target = MovingTarget.new(10)
+		const targetCell = target.position()
+		const xCoord = (targetCell %  MAP_SIZE) * CELL_SIZE;
+		const yCoord = Math.floor(targetCell / MAP_SIZE) * CELL_SIZE;
+		const targetPoints = target.calculate_points();
+		
+		ctx.beginPath();
+		ctx.fillStyle = "#7edd9e";
+		ctx.fillRect(xCoord, yCoord, CELL_SIZE, CELL_SIZE); 
+
+		ctx.fillStyle = "black";
+		ctx.font = "15px Arial";
+		const text = targetPoints.toString() + "p";
+		ctx.fillText(text, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.55);
+
+		console.log(target.position(), "position")
+	}
+
+
 	function drawGameStatus() {
 		gameStatusContainer.textContent = map.game_status_text();
 		gamePointsContainer.textContent = map.points().toString() ;
@@ -218,6 +237,7 @@ init().then(wasmObj => {
 		drawGameStatus();
 		drawTrap();
 		drawSuperBonus();
+		drawMovingTarget();
 		if (map.game_status() !== GameStatus.Played) {
 			console.log(map.get_game_stat().life_steps);
 		}

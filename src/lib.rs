@@ -538,7 +538,7 @@ impl TrapCell {
 pub struct SuperBonus(usize, usize);
 
 #[wasm_bindgen]
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum Direction {
 	Up, Right, Down, Left
 }
@@ -563,4 +563,65 @@ pub struct GameStat {
 	pub bonus: usize,
 	pub snake_size: usize,
 	pub super_bonuses: usize
+}
+
+#[wasm_bindgen]
+pub struct MovingTarget {
+	idx: usize,
+	direction: Direction,
+	points: usize,
+	life: usize
+}
+
+#[wasm_bindgen]
+impl MovingTarget {
+	pub fn new(idx: usize) -> MovingTarget {
+		let direction: Direction = MovingTarget::decide_direction();
+		MovingTarget { 
+			idx,
+			direction, 
+			points: 500,
+			life: 20 
+		}
+	}
+
+	fn decide_direction() -> Direction {
+		let rnd_direction = rnd(5);
+		match rnd_direction {
+			0 => Direction::Right,
+			1 => Direction::Left,
+			2 => Direction::Down,
+			_ => Direction::Up
+		}
+	}
+
+	pub fn calculate_points(&self) -> usize {
+		self.points + self.life * 15
+	}
+
+	pub fn position(&self) -> usize {
+		self.idx
+	}
+
+	fn decrease_life_steps(&mut self) {
+		self.life -= 1;
+	}
+
+	fn change_direction(&mut self) {
+		let rnd_range = rnd(10);
+		self.direction = match rnd_range {
+			0..=5 => MovingTarget::decide_direction(),
+			_ => self.direction
+		}
+	}
+
+	fn next_move(&mut self, mapLength: usize) {
+		let row = self.idx % mapLength;
+		self.idx = match self.direction {
+			Direction::Right => { (row * mapLength) + (self.idx + 1) % mapLength },
+			Direction::Left => { (row * mapLength) + (self.idx - 1) % mapLength },
+			Direction::Up => { (self.idx - mapLength) % (mapLength * mapLength) },
+			Direction::Down => { (self.idx + mapLength) % (mapLength * mapLength) },
+		};
+	}
 }

@@ -61,7 +61,7 @@ h1{
 
 .overlay {
 	position: absolute;
-	top: 50%;
+	top: 95%;
 	background-color: rgb(206, 189, 189);
 	width: 50%;
 	margin: auto;

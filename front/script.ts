@@ -280,7 +280,7 @@ init().then(wasmObj => {
 				overlayContainer.style.display = "block"
 				const stat = map.get_game_stat();
 				overlayContainer.textContent = `
-					Snake life time: ${stat.life_steps}, 
+					Snake life time: ${stat.life_steps} steps, 
 					Eated enemies: ${stat.consumed_moving_targets} ,
 					Traps: ${stat.consumed_traps} ,
 					Targets: ${stat.consumed_rewards} ,

@@ -218,7 +218,7 @@ init().then(wasmObj => {
 		const text = map.moving_target_points().toString() + "p";
 		ctx.fillText(text, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.55);
 
-		console.log(targetCell, "idx", map.moving_target_life(), "life", map.steps_to_moving_target(), "steps")
+		//console.log(targetCell, "idx", map.moving_target_life(), "life", map.steps_to_moving_target(), "steps")
 	}
 
 

@@ -65,6 +65,7 @@ impl WorldMap {
 			consumed_rewards: 0,
 			consumed_traps: 0,
 			consumed_super_bonuses: 0,
+			consumed_moving_targets: 0,
 			moving_cell: Option::None,
 			steps_to_moving_target
 		}
@@ -124,8 +125,15 @@ impl WorldMap {
 		self.remove_moving_target();
 	}
 
-	fn moving_cell_bite_snake() {
-
+	fn moving_cell_bite_snake(&mut self) {
+		self.points = 0;
+		if self.snake_length() > 6 {
+			self.snake.body.pop();
+			self.snake.body.pop();
+			self.snake.body.pop();
+		} else {
+			self.status = Some(GameStatus::Lost);
+		}
 	}
 
 	fn check_moving_target(&mut self) {

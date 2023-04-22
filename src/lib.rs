@@ -33,7 +33,8 @@ pub struct WorldMap {
 	consumed_super_bonuses: usize,
 	consumed_moving_targets: usize,
 	moving_cell: Option<MovingTarget>,
-	steps_to_moving_target: usize
+	steps_to_moving_target: usize,
+	reason: Reason
 }
 
 #[wasm_bindgen]
@@ -67,7 +68,8 @@ impl WorldMap {
 			consumed_super_bonuses: 0,
 			consumed_moving_targets: 0,
 			moving_cell: Option::None,
-			steps_to_moving_target
+			steps_to_moving_target,
+			reason:Reason::StillAlive
 		}
 	}
 
@@ -125,14 +127,32 @@ impl WorldMap {
 		self.remove_moving_target();
 	}
 
+	fn increase_moving_cell_points(&mut self, points: usize) {
+		if let Some(moving_target) = &mut self.moving_cell {
+			moving_target.points += points;
+		}
+	}
+
 	fn moving_cell_bite_snake(&mut self) {
 		self.points = 0;
-		if self.snake_length() > 6 {
-			self.snake.body.pop();
-			self.snake.body.pop();
-			self.snake.body.pop();
-		} else {
-			self.status = Some(GameStatus::Lost);
+		self.increase_moving_cell_points(1000);
+		if let Some(moving_target) = &mut self.moving_cell {
+			let cut_index: usize = moving_target.idx;
+			if let Some(snake_cell) = WorldMap::find_snake_cell_index(&self.snake.body, cut_index) {
+				let snake_cut_index: usize;
+				if snake_cell > 2 {
+					snake_cut_index = snake_cell;
+				} else {
+					snake_cut_index = 3;
+				}
+				if self.snake_length() > 2 {
+					let (first_half, _) = self.snake.body.split_at_mut(snake_cut_index);
+					self.snake.body = first_half.to_vec();
+				} else {
+					self.reason = Reason::Eaten;
+					self.status = Some(GameStatus::Lost);
+				}
+			}
 		}
 	}
 
@@ -162,6 +182,10 @@ impl WorldMap {
 				self.steps_to_moving_target -= 1;
 			}
 		}
+	}
+
+	fn find_snake_cell_index(snake: &[SnakeCell], idx: usize) -> Option<usize> {
+		snake.iter().position(|cell| cell.0 == idx)
 	}
 
 	fn generate_super_bonus(max: usize, snake_body: &Vec<SnakeCell>) -> SuperBonus {
@@ -516,12 +540,21 @@ impl WorldMap {
 	}
 
 	fn consumed_items(&self) -> usize {
-		self.consumed_traps + self.consumed_rewards + self.consumed_super_bonuses 
+		self.consumed_traps + self.consumed_rewards + self.consumed_super_bonuses + self.consumed_moving_targets
 	}
 
 	fn check_activity(&mut self) {
 		if self.life_steps % 100 == 0 && self.consumed_items() < self.life_steps / 20 {
-			self.status = Some(GameStatus::Lost)
+			self.reason = Reason::NotActive;
+			self.status = Some(GameStatus::Lost);
+		}
+	}
+	
+	pub fn get_reason(&self) -> String {
+		match self.reason {
+			Reason::Eaten => String::from("Eaten by enemy"),
+			Reason::NotActive => String::from("Not active, death from hungry"),
+			Reason::StillAlive => String::from("more than alive")
 		}
 	}
 
@@ -657,6 +690,11 @@ pub enum Direction {
 #[derive(Clone, Copy)]
 pub enum  GameStatus {
 	Won, Lost, Played
+}
+
+#[wasm_bindgen]
+pub enum Reason {
+	StillAlive, Eaten, NotActive
 }
 
 #[wasm_bindgen]

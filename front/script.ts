@@ -7,6 +7,7 @@ init().then(wasmObj => {
 	const gameStatusContainer = <HTMLDivElement> document.getElementById("game-status");
 	const gamePointsContainer = <HTMLDivElement> document.getElementById("game-points");
 	const gameStepsContainer = <HTMLDivElement> document.getElementById("snake-steps");
+	const gameReasonContainer = <HTMLDivElement> document.getElementById("reason");
 	const gameBonusesContainer = <HTMLDivElement> document.getElementById("extra-bonuses");
 	const ctx = canvas.getContext("2d");
 	
@@ -217,8 +218,6 @@ init().then(wasmObj => {
 		ctx.font = "15px Arial";
 		const text = map.moving_target_points().toString() + "p";
 		ctx.fillText(text, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.55);
-
-		//console.log(targetCell, "idx", map.moving_target_life(), "life", map.steps_to_moving_target(), "steps")
 	}
 
 
@@ -274,7 +273,10 @@ init().then(wasmObj => {
 			ctx.clearRect(0,0, canvas.width, canvas.height); // cleaning canvas
 			map.update();
 			paint();
-			if (map.game_status() !== GameStatus.Played) return;
+			if (map.game_status() !== GameStatus.Played) {
+				gameReasonContainer.textContent = map.get_reason();
+				return;
+			}
 			requestAnimationFrame(start);
 		}, SPEED / fps)
 	}

@@ -34,7 +34,8 @@ pub struct WorldMap {
 	consumed_moving_targets: usize,
 	moving_cell: Option<MovingTarget>,
 	steps_to_moving_target: usize,
-	reason: Reason
+	reason: Reason,
+	eaten_by_enemy: usize
 }
 
 #[wasm_bindgen]
@@ -69,7 +70,8 @@ impl WorldMap {
 			consumed_moving_targets: 0,
 			moving_cell: Option::None,
 			steps_to_moving_target,
-			reason:Reason::StillAlive
+			reason:Reason::StillAlive,
+			eaten_by_enemy: 0
 		}
 	}
 
@@ -135,6 +137,7 @@ impl WorldMap {
 
 	fn moving_cell_bite_snake(&mut self) {
 		self.points = 0;
+		self.eaten_by_enemy += 1;
 		self.increase_moving_cell_points(1000);
 		if let Some(moving_target) = &mut self.moving_cell {
 			let cut_index: usize = moving_target.idx;
@@ -443,7 +446,9 @@ impl WorldMap {
 			bonus: self.bonus_points,
 			snake_size: self.snake_length(),
 			super_bonuses: self.consumed_super_bonuses,
-			consumed_moving_targets: self.consumed_moving_targets
+			consumed_moving_targets: self.consumed_moving_targets,
+			points: self.points,
+			eaten_by_enemy: self.eaten_by_enemy
 		}
 	}
 
@@ -549,12 +554,13 @@ impl WorldMap {
 			self.status = Some(GameStatus::Lost);
 		}
 	}
-	
+
 	pub fn get_reason(&self) -> String {
 		match self.reason {
 			Reason::Eaten => String::from("Eaten by enemy"),
 			Reason::NotActive => String::from("Not active, death from hungry"),
-			Reason::StillAlive => String::from("more than alive")
+			Reason::StillAlive => String::from("More than alive!"),
+			Reason::Suiside => String::from("Suiside due to depression")
 		}
 	}
 
@@ -591,6 +597,7 @@ impl WorldMap {
 				}
 
 				if self.snake.body[1..snake_len].contains(&self.snake.body[0]) {
+					self.reason = Reason::Suiside;
 					self.status = Some(GameStatus::Lost);
 				}
 
@@ -694,7 +701,7 @@ pub enum  GameStatus {
 
 #[wasm_bindgen]
 pub enum Reason {
-	StillAlive, Eaten, NotActive
+	StillAlive, Eaten, NotActive, Suiside
 }
 
 #[wasm_bindgen]
@@ -711,7 +718,9 @@ pub struct GameStat {
 	pub bonus: usize,
 	pub snake_size: usize,
 	pub super_bonuses: usize,
-	pub consumed_moving_targets: usize
+	pub consumed_moving_targets: usize,
+	pub points: usize,
+	pub eaten_by_enemy: usize
 }
 
 #[wasm_bindgen]

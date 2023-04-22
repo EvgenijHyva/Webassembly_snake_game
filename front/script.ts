@@ -9,6 +9,7 @@ init().then(wasmObj => {
 	const gameStepsContainer = <HTMLDivElement> document.getElementById("snake-steps");
 	const gameReasonContainer = <HTMLDivElement> document.getElementById("reason");
 	const gameBonusesContainer = <HTMLDivElement> document.getElementById("extra-bonuses");
+	const overlayContainer = <HTMLDivElement> document.getElementById("overlay");
 	const ctx = canvas.getContext("2d");
 	
 	const CELL_SIZE = 100; // px
@@ -237,6 +238,7 @@ init().then(wasmObj => {
 		drawSuperBonus();
 		drawMovingTarget();
 		if (map.game_status() !== GameStatus.Played) {
+			
 			console.log(map.get_game_stat().life_steps);
 		}
 	}
@@ -275,6 +277,20 @@ init().then(wasmObj => {
 			paint();
 			if (map.game_status() !== GameStatus.Played) {
 				gameReasonContainer.textContent = map.get_reason();
+				overlayContainer.style.display = "block"
+				const stat = map.get_game_stat();
+				overlayContainer.textContent = `
+					Snake life time: ${stat.life_steps}, 
+					Eated enemies: ${stat.consumed_moving_targets} ,
+					Traps: ${stat.consumed_traps} ,
+					Targets: ${stat.consumed_rewards} ,
+					Super bonuses: ${stat.super_bonuses} ,
+					Bonus Points: ${stat.bonus} ,
+					Points: ${stat.points} ,
+					Snake length: ${stat.snake_size} ,
+					Eaten by enemy: ${stat.eaten_by_enemy} times ,
+					Reason: ${map.get_reason()} ,
+				`;
 				return;
 			}
 			requestAnimationFrame(start);

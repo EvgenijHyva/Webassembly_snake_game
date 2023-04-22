@@ -14,6 +14,10 @@
 	flex-direction: column;
 }
 
+.h-screen {
+	max-height: 50vh;
+}
+
 .content-wrapper span {
 	font-family: "Pacifico";
 	font-size: 20px;

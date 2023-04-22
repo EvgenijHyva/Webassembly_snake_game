@@ -30,7 +30,10 @@ pub struct WorldMap {
 	super_bonus_steps: usize,
 	consumed_rewards: usize,
 	consumed_traps: usize,
-	consumed_super_bonuses: usize
+	consumed_super_bonuses: usize,
+	consumed_moving_targets: usize,
+	moving_cell: Option<MovingTarget>,
+	steps_to_moving_target: usize
 }
 
 #[wasm_bindgen]
@@ -42,6 +45,7 @@ impl WorldMap {
 
 		let trap_steps = now() % size + 2;
 		let super_bonus_steps = WorldMap::gen_super_bonus_steps(size);
+		let steps_to_moving_target = WorldMap::gen_moving_target_steps(size);
 
 		WorldMap {
 			size,
@@ -60,7 +64,91 @@ impl WorldMap {
 			super_bonus_steps,
 			consumed_rewards: 0,
 			consumed_traps: 0,
-			consumed_super_bonuses: 0
+			consumed_super_bonuses: 0,
+			moving_cell: Option::None,
+			steps_to_moving_target
+		}
+	}
+
+	fn gen_moving_target_steps(size: usize) -> usize {
+		rnd(size * 4) + 5
+	}
+
+	fn generate_moving_target(max: usize, snake_body: &Vec<SnakeCell>) -> MovingTarget {
+		let mut cell_idx: usize;
+		loop { 
+			cell_idx = rnd(max);
+			if !snake_body.contains(&SnakeCell(cell_idx)) {
+				break;
+			}
+		}
+		MovingTarget::new(cell_idx)
+	}
+
+	pub fn steps_to_moving_target(&self) -> usize { // test
+		self.steps_to_moving_target
+	}
+
+	pub fn moving_target_life(&self) -> usize {
+		if let Some(moving_target) = &self.moving_cell {
+			moving_target.life
+		} else {
+			0
+		}
+	}
+	pub fn moving_target_points(&self) -> usize {
+		match &self.moving_cell {
+			None => 0,
+			Some(moving_target) => moving_target.calculate_points()
+		}
+	}
+
+	pub fn moving_target_cell_idx(&self) -> usize  {
+		match &self.moving_cell {
+			None => 1000000,
+			Some(moving_target) => moving_target.position()
+		}
+	}
+
+	fn remove_moving_target(&mut self) {
+		self.moving_cell = None;
+		self.steps_to_moving_target = WorldMap::gen_moving_target_steps(self.size);
+	}
+
+	fn consume_moving_target(&mut self) {
+		self.snake.body.push(SnakeCell(self.snake.body[1].0));
+		let points = self.moving_target_points();
+		self.points += points;
+		self.bonus_points += points;
+		consumed_moving_targets += 1;
+		self.remove_moving_target();
+	}
+
+	fn check_moving_target(&mut self) {
+		if let Some(moving_target) = &mut self.moving_cell {
+			if moving_target.life == 0 {
+				drop(moving_target);
+				self.remove_moving_target();
+				return;
+			}
+			if moving_target.decision_steps == 0 {
+				moving_target.change_direction();
+				// 
+				
+				let map_length = self.size;
+				moving_target.next_move(map_length);
+			} else {
+				moving_target.decision_steps -= 1;
+			}
+			moving_target.decrease_life_steps();
+		} else {
+			if self.steps_to_moving_target == 0 {
+				if self.snake_length() < self.get_2d_size() - self.size {
+					self.moving_cell = Some(WorldMap::generate_moving_target(self.get_2d_size(), &self.snake.body));
+				}
+			} else {
+				self.steps_to_moving_target -= 1;
+			}
 		}
 	}
 
@@ -319,6 +407,7 @@ impl WorldMap {
 			bonus: self.bonus_points,
 			snake_size: self.snake_length(),
 			super_bonuses: self.consumed_super_bonuses,
+			consumed_moving_targets: self.consumed_moving_targets
 		}
 	}
 
@@ -445,7 +534,12 @@ impl WorldMap {
 					self.snake.body[i] = SnakeCell(temp[i-1].0);
 				}
 				
+				if Some(self.snake_head_index()) == Some(self.moving_target_cell_idx()){
+					self.consume_moving_target();
+				}
+
 				self.check_super_bonus();
+				self.check_moving_target();
 
 				if self.steps == 0 {
 					self.reduce_points();
@@ -562,7 +656,8 @@ pub struct GameStat {
 	pub life_steps: usize,
 	pub bonus: usize,
 	pub snake_size: usize,
-	pub super_bonuses: usize
+	pub super_bonuses: usize,
+	pub consumed_moving_targets: usize
 }
 
 #[wasm_bindgen]
@@ -570,23 +665,29 @@ pub struct MovingTarget {
 	idx: usize,
 	direction: Direction,
 	points: usize,
-	life: usize
+	life: usize,
+	decision_steps: usize,
+	steps_to_move: usize
 }
 
 #[wasm_bindgen]
 impl MovingTarget {
 	pub fn new(idx: usize) -> MovingTarget {
 		let direction: Direction = MovingTarget::decide_direction();
+		let decision_steps: usize = rnd(3);
+		let steps_to_move: usize = MovingTarget::gen_move_steps();
 		MovingTarget { 
 			idx,
 			direction, 
 			points: 500,
-			life: 20 
+			life: 50,
+			decision_steps,
+			steps_to_move
 		}
 	}
 
 	fn decide_direction() -> Direction {
-		let rnd_direction = rnd(5);
+		let rnd_direction: usize = rnd(5);
 		match rnd_direction {
 			0 => Direction::Right,
 			1 => Direction::Left,
@@ -608,20 +709,30 @@ impl MovingTarget {
 	}
 
 	fn change_direction(&mut self) {
-		let rnd_range = rnd(10);
+		let rnd_range: usize = rnd(10);
 		self.direction = match rnd_range {
 			0..=5 => MovingTarget::decide_direction(),
 			_ => self.direction
 		}
 	}
 
-	fn next_move(&mut self, mapLength: usize) {
-		let row = self.idx % mapLength;
-		self.idx = match self.direction {
-			Direction::Right => { (row * mapLength) + (self.idx + 1) % mapLength },
-			Direction::Left => { (row * mapLength) + (self.idx - 1) % mapLength },
-			Direction::Up => { (self.idx - mapLength) % (mapLength * mapLength) },
-			Direction::Down => { (self.idx + mapLength) % (mapLength * mapLength) },
-		};
+	fn gen_move_steps() -> usize{
+		rnd(2) + 2
+	}
+
+	fn next_move(&mut self, map_length: usize) {
+		let row = self.idx / map_length;
+		if self.steps_to_move == 0 {
+			self.idx = match self.direction {
+				Direction::Right => { (row * map_length) + (self.idx + 1) % map_length },
+				Direction::Left => { (row * map_length) + (self.idx - 1) % map_length },
+				Direction::Up => { (self.idx - map_length) % (map_length * map_length) },
+				Direction::Down => { (self.idx + map_length) % (map_length * map_length) },
+			};
+			self.steps_to_move = MovingTarget::gen_move_steps();
+		} else {
+			self.steps_to_move -= 1;
+		}
+		
 	}
 }

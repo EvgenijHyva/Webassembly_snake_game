@@ -204,11 +204,10 @@ init().then(wasmObj => {
 	}
 
 	function drawMovingTarget() {
-		const target = MovingTarget.new(10)
-		const targetCell = target.position()
+		const targetCell = map.moving_target_cell_idx();
 		const xCoord = (targetCell %  MAP_SIZE) * CELL_SIZE;
 		const yCoord = Math.floor(targetCell / MAP_SIZE) * CELL_SIZE;
-		const targetPoints = target.calculate_points();
+		//const targetPoints 
 		
 		ctx.beginPath();
 		ctx.fillStyle = "#7edd9e";
@@ -216,10 +215,10 @@ init().then(wasmObj => {
 
 		ctx.fillStyle = "black";
 		ctx.font = "15px Arial";
-		const text = targetPoints.toString() + "p";
+		const text = map.moving_target_points().toString() + "p";
 		ctx.fillText(text, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.55);
 
-		console.log(target.position(), "position")
+		console.log(targetCell, "idx", map.moving_target_life(), "life", map.steps_to_moving_target(), "steps")
 	}
 
 

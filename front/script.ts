@@ -139,8 +139,12 @@ init().then(wasmObj => {
 		ctx.font = "15px Arial";
 		
 		ctx.fillText(text, col * CELL_SIZE + CELL_SIZE * 0.35, row * CELL_SIZE + CELL_SIZE * 0.50);
-		ctx.fillText(text2, col * CELL_SIZE + CELL_SIZE * 0.25, row * CELL_SIZE + CELL_SIZE * 0.65)
+		ctx.fillText(text2, col * CELL_SIZE + CELL_SIZE * 0.25, row * CELL_SIZE + CELL_SIZE * 0.65);
 	}
+
+	function hideStat() {
+		overlayContainer.style.display = "none";
+	}	
 
 	function drawTrap() {
 		const trapInx = map.trap_cell_idx();
@@ -219,6 +223,8 @@ init().then(wasmObj => {
 		ctx.font = "15px Arial";
 		const text = map.moving_target_points().toString() + "p";
 		ctx.fillText(text, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.55);
+		const text2 = "Enemy";
+		ctx.fillText(text2, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.2);
 	}
 
 
@@ -237,10 +243,6 @@ init().then(wasmObj => {
 		drawTrap();
 		drawSuperBonus();
 		drawMovingTarget();
-		if (map.game_status() !== GameStatus.Played) {
-			
-			console.log(map.get_game_stat().life_steps);
-		}
 	}
 
 	function defineFPS() {
@@ -277,20 +279,21 @@ init().then(wasmObj => {
 			paint();
 			if (map.game_status() !== GameStatus.Played) {
 				gameReasonContainer.textContent = map.get_reason();
-				overlayContainer.style.display = "block"
+				overlayContainer.style.display = "block";
 				const stat = map.get_game_stat();
-				overlayContainer.textContent = `
-					Snake life time: ${stat.life_steps} steps, 
-					Eated enemies: ${stat.consumed_moving_targets} ,
-					Traps: ${stat.consumed_traps} ,
-					Targets: ${stat.consumed_rewards} ,
-					Super bonuses: ${stat.super_bonuses} ,
-					Bonus Points: ${stat.bonus} ,
-					Points: ${stat.points} ,
-					Snake length: ${stat.snake_size} ,
-					Eaten by enemy: ${stat.eaten_by_enemy} times ,
-					Reason: ${map.get_reason()} ,
+				overlayContainer.innerHTML += `
+					<div>Snake life time: ${stat.life_steps} steps </div> 
+					<div>Eated enemies: ${stat.consumed_moving_targets}</div>  
+					<div>Traps: ${stat.consumed_traps} </div>
+					<div>Targets: ${stat.consumed_rewards} </div>
+					<div>Super bonuses: ${stat.super_bonuses} </div>
+					<div>Bonus Points: ${stat.bonus} </div>
+					<div>Points: ${stat.points} </div>
+					<div>Max snake length: ${stat.snake_size} </div>
+					<div>Eaten by enemy: ${stat.eaten_by_enemy} times </div>
+					<div>Reason: ${map.get_reason()} </div>
 				`;
+				document.getElementById("close").addEventListener("click", hideStat, false);
 				return;
 			}
 			requestAnimationFrame(start);

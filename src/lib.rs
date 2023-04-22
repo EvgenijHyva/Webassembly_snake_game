@@ -35,7 +35,8 @@ pub struct WorldMap {
 	moving_cell: Option<MovingTarget>,
 	steps_to_moving_target: usize,
 	reason: Reason,
-	eaten_by_enemy: usize
+	eaten_by_enemy: usize,
+	max_snake_size:usize
 }
 
 #[wasm_bindgen]
@@ -71,7 +72,8 @@ impl WorldMap {
 			moving_cell: Option::None,
 			steps_to_moving_target,
 			reason:Reason::StillAlive,
-			eaten_by_enemy: 0
+			eaten_by_enemy: 0,
+			max_snake_size: snake_body_size
 		}
 	}
 
@@ -135,26 +137,70 @@ impl WorldMap {
 		}
 	}
 
+	fn check_max_poinst(&mut self) {
+		if self.snake_length() > self.max_snake_size {
+			self.max_snake_size = self.snake_length();
+		}
+	}
+
 	fn moving_cell_bite_snake(&mut self) {
 		self.points = 0;
 		self.eaten_by_enemy += 1;
-		self.increase_moving_cell_points(1000);
+		self.increase_moving_cell_points(1500);
 		if let Some(moving_target) = &mut self.moving_cell {
 			let cut_index: usize = moving_target.idx;
 			if let Some(snake_cell) = WorldMap::find_snake_cell_index(&self.snake.body, cut_index) {
+				moving_target.life += 30;
 				let snake_cut_index: usize;
-				if snake_cell > 2 {
+				if snake_cell > 4 {
 					snake_cut_index = snake_cell;
 				} else {
-					snake_cut_index = 3;
+					snake_cut_index = 4;
 				}
-				if self.snake_length() > 2 {
+				if self.snake_length() > 4 {
 					let (first_half, _) = self.snake.body.split_at_mut(snake_cut_index);
 					self.snake.body = first_half.to_vec();
 				} else {
 					self.reason = Reason::Eaten;
 					self.status = Some(GameStatus::Lost);
 				}
+			}
+		}
+	}
+
+	fn check_moving_target_consume_trap(&mut self) {
+		let trap_idx = self.trap_cell_idx();
+		if let Some(moving_target) = &mut self.moving_cell {
+			if moving_target.idx == trap_idx {
+				if moving_target.life < 20 {
+					self.moving_cell = None;
+				} else {
+					moving_target.points = 0;
+					moving_target.life = 10;
+				}
+			}
+		}
+	}
+
+	fn check_moving_target_consume_reward(&mut self) {
+		let reward_idx = self.reward_cell_idx();
+		if let Some(moving_target) = &mut self.moving_cell {
+			if moving_target.idx == reward_idx {
+				moving_target.life += 10;
+				moving_target.points += 100;
+				self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
+			}
+		}
+	}
+
+	fn check_moving_target_consume_super_bonus(&mut self) {
+		let bonus_idx = self.super_bonus_cell_idx();
+		let bonus_poinst = self.super_bonus_points();
+		if let Some(moving_target) = &mut self.moving_cell {
+			if moving_target.idx == bonus_idx {
+				moving_target.life += 15;
+				moving_target.points += bonus_poinst + 300;
+				self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 			}
 		}
 	}
@@ -224,7 +270,6 @@ impl WorldMap {
 		if self.snake_head_index() == self.super_bonus_cell_idx() {
 			self.super_bonus_consumption();
 		}
-
 
 		if let Some(super_bonus_cell) = &mut self.super_bonus_cell {
 			super_bonus_cell.1 -= 1;
@@ -444,7 +489,7 @@ impl WorldMap {
 			consumed_traps: self.consumed_traps,
 			life_steps: self.life_steps,
 			bonus: self.bonus_points,
-			snake_size: self.snake_length(),
+			snake_size: self.max_snake_size,
 			super_bonuses: self.consumed_super_bonuses,
 			consumed_moving_targets: self.consumed_moving_targets,
 			points: self.points,
@@ -565,6 +610,7 @@ impl WorldMap {
 	}
 
 	pub fn update(&mut self) {
+		self.check_max_poinst();
 		self.check_activity();
 		match self.status {
 			Some(GameStatus::Played) => {
@@ -610,6 +656,10 @@ impl WorldMap {
 					self.consume_reward();
 				}
 				self.check_trap();
+
+				self.check_moving_target_consume_trap();
+				self.check_moving_target_consume_reward();
+				self.check_moving_target_consume_super_bonus();
 			},
 			None => {
 

@@ -60,13 +60,23 @@ h1{
 }
 
 .overlay {
-	position: absolute;
-	top: 95%;
-	background-color: rgb(206, 189, 189);
+	padding: 10px 5px;
+	color: white;
+	position: fixed;
+	bottom: 50%;
+	background-color: rgb(53, 48, 48);
 	width: 50%;
 	margin: auto;
 	align-content: center;
 	text-align: center;
+	z-index: 5;
+}
+
+.close {
+	font-family: sans-serif !important;
+	position: absolute;
+	right: 10px;
+	cursor: pointer;
 }
 
 @keyframes slide {

@@ -120,8 +120,12 @@ impl WorldMap {
 		let points = self.moving_target_points();
 		self.points += points;
 		self.bonus_points += points;
-		consumed_moving_targets += 1;
+		self.consumed_moving_targets += 1;
 		self.remove_moving_target();
+	}
+
+	fn moving_cell_bite_snake() {
+
 	}
 
 	fn check_moving_target(&mut self) {
@@ -529,13 +533,13 @@ impl WorldMap {
 						self.snake.body[0] = self.generate_next_snake_cell(&self.snake.direction);
 					}
 				}	
+				if Some(self.snake_head_index()) == Some(self.moving_target_cell_idx()){
+					self.consume_moving_target();
+				}
+
 				let snake_len: usize = self.snake_length();
 				for i in 1..snake_len {
 					self.snake.body[i] = SnakeCell(temp[i-1].0);
-				}
-				
-				if Some(self.snake_head_index()) == Some(self.moving_target_cell_idx()){
-					self.consume_moving_target();
 				}
 
 				self.check_super_bonus();
@@ -547,6 +551,10 @@ impl WorldMap {
 
 				if self.snake.body[1..snake_len].contains(&self.snake.body[0]) {
 					self.status = Some(GameStatus::Lost);
+				}
+
+				if self.snake.body[1..snake_len].contains(&SnakeCell(self.moving_target_cell_idx())) {
+					self.moving_cell_bite_snake();
 				}
 
 				// consuming reward cell

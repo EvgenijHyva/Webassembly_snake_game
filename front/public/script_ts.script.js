@@ -135,7 +135,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \*********************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-eval("module.exports = __webpack_require__.p + \"c57dad90b0213de31e11.wasm\";\n\n//# sourceURL=webpack://snake_game/../pkg/snake_game_bg.wasm?");
+eval("module.exports = __webpack_require__.p + \"3b2f12f554ead495b87e.wasm\";\n\n//# sourceURL=webpack://snake_game/../pkg/snake_game_bg.wasm?");
 
 /***/ })
 

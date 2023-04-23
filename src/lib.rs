@@ -753,6 +753,7 @@ pub enum Direction {
 }
 
 #[wasm_bindgen]
+#[derive(Clone, Copy)]
 pub enum TargetStatus {
 	VeryHungry, Hungry, Fine, Good, VeryGood
 }
@@ -803,7 +804,8 @@ impl MovingTarget {
 	pub fn new(idx: usize) -> MovingTarget {
 		let direction: Direction = MovingTarget::decide_direction();
 		let decision_steps: usize = rnd(3);
-		let steps_to_move: usize = MovingTarget::gen_move_steps();
+		let status = TargetStatus::Good;
+		let steps_to_move: usize = MovingTarget::gen_move_steps(status);
 		MovingTarget { 
 			idx,
 			direction, 
@@ -811,7 +813,7 @@ impl MovingTarget {
 			life: 50,
 			decision_steps,
 			steps_to_move,
-			status: TargetStatus::Good
+			status
 		}
 	}
 
@@ -866,8 +868,14 @@ impl MovingTarget {
 		}
 	}
 
-	fn gen_move_steps() -> usize{
-		rnd(2) + 2
+	fn gen_move_steps(status:TargetStatus) -> usize{
+		match status {
+			TargetStatus::VeryGood => { rnd(2) + 2 },
+			TargetStatus::Good => { rnd(2) + 2 },
+			TargetStatus::Fine => { rnd(2) + 1 },
+			TargetStatus::Hungry => { rnd(2) + 1 },
+			TargetStatus::VeryHungry => { rnd(1) + 1 }
+		}
 	}
 
 	fn next_move(&mut self, map_length: usize) {
@@ -879,7 +887,7 @@ impl MovingTarget {
 				Direction::Up => { (self.idx - map_length) % (map_length * map_length) },
 				Direction::Down => { (self.idx + map_length) % (map_length * map_length) },
 			};
-			self.steps_to_move = MovingTarget::gen_move_steps();
+			self.steps_to_move = MovingTarget::gen_move_steps(self.status);
 		} else {
 			self.steps_to_move -= 1;
 		}

@@ -54,6 +54,33 @@ init().then(wasmObj => {
 		}
 	})
 
+	let touchStartX: null | number = null;
+	let touchStartY: null | number = null;
+	document.addEventListener('touchstart', (event) => {
+		touchStartX = event.touches[0].clientX;
+		touchStartY = event.touches[0].clientY;
+	});
+
+	document.addEventListener('touchend', function(event) {
+		const touchEndX = event.changedTouches[0].clientX;
+		const touchEndY = event.changedTouches[0].clientY;
+		const xDiff = touchEndX - touchStartX;
+		const yDiff = touchEndY - touchStartY;
+		if (Math.abs(xDiff) > Math.abs(yDiff)) {
+			if (xDiff > 0) {
+				map.change_snake_direction(Direction.Right);
+			} else {
+				map.change_snake_direction(Direction.Left);
+			}
+		} else {
+			if (yDiff > 0) {
+				map.change_snake_direction(Direction.Down);
+			} else {
+				map.change_snake_direction(Direction.Up);
+			}
+		}
+	});
+
 	gameControlBtn.addEventListener("click", () => {
 		const gameStatus = map.game_status();
 		gameControlBtn.textContent = "Reload";

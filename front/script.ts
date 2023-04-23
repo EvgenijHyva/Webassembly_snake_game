@@ -218,13 +218,21 @@ init().then(wasmObj => {
 		ctx.beginPath();
 		ctx.fillStyle = "#7edd9e";
 		ctx.fillRect(xCoord, yCoord, CELL_SIZE, CELL_SIZE); 
-
 		ctx.fillStyle = "black";
 		ctx.font = "15px Arial";
 		const text = map.moving_target_points().toString() + "p";
 		ctx.fillText(text, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.55);
 		const text2 = "Enemy";
-		ctx.fillText(text2, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.2);
+		ctx.fillText(text2, xCoord + CELL_SIZE * 0.3, yCoord + CELL_SIZE * 0.2);		
+		const text3 = map.moving_target_status();
+		let fontSize = 15;
+		let textWidth = ctx.measureText(text3).width;
+		while (textWidth > CELL_SIZE) {
+			fontSize --;
+			ctx.font = `${fontSize}px Arial`
+			textWidth = ctx.measureText(text3).width;
+		}
+		ctx.fillText(text3, xCoord + CELL_SIZE * 0.05 , yCoord + CELL_SIZE * 0.85);
 	}
 
 
@@ -283,15 +291,16 @@ init().then(wasmObj => {
 				const stat = map.get_game_stat();
 				overlayContainer.innerHTML += `
 					<div>Snake life time: ${stat.life_steps} steps </div> 
-					<div>Eated enemies: ${stat.consumed_moving_targets}</div>  
-					<div>Traps: ${stat.consumed_traps} </div>
-					<div>Targets: ${stat.consumed_rewards} </div>
+					<div>Eated enemies: ${stat.consumed_moving_targets} ps</div>  
+					<div>Traps: ${stat.consumed_traps} ps </div>
+					<div>Targets: ${stat.consumed_rewards} ps </div>
 					<div>Super bonuses: ${stat.super_bonuses} </div>
-					<div>Bonus Points: ${stat.bonus} </div>
-					<div>Points: ${stat.points} </div>
+					<div>Bonus points: ${stat.bonus}p </div>
+					<div>Total points: <b>${stat.points}p </b> </div>
 					<div>Max snake length: ${stat.snake_size} </div>
 					<div>Eaten by enemy: ${stat.eaten_by_enemy} times </div>
-					<div>Reason: ${map.get_reason()} </div>
+					<div>Final status: ${map.get_reason()} </div>
+					${map.get_reason().includes("enemy") ? "<div><b>Poinst are eaten by enemy!</b></div>" : ""} 
 				`;
 				document.getElementById("close").addEventListener("click", hideStat, false);
 				return;

@@ -117,6 +117,13 @@ impl WorldMap {
 		}
 	}
 
+	pub fn moving_target_status(&self) -> String {
+		match &self.moving_cell {
+			None => String::from("Not exists"),
+			Some(moving_target) => moving_target.status_verbal()
+		}
+	}
+
 	fn remove_moving_target(&mut self) {
 		self.moving_cell = None;
 		self.steps_to_moving_target = WorldMap::gen_moving_target_steps(self.size);
@@ -146,11 +153,11 @@ impl WorldMap {
 	fn moving_cell_bite_snake(&mut self) {
 		self.points = 0;
 		self.eaten_by_enemy += 1;
-		self.increase_moving_cell_points(1500);
+		self.increase_moving_cell_points(1800);
 		if let Some(moving_target) = &mut self.moving_cell {
 			let cut_index: usize = moving_target.idx;
 			if let Some(snake_cell) = WorldMap::find_snake_cell_index(&self.snake.body, cut_index) {
-				moving_target.life += 30;
+				moving_target.life += 35;
 				let snake_cut_index: usize;
 				if snake_cell > 4 {
 					snake_cut_index = snake_cell;
@@ -176,8 +183,9 @@ impl WorldMap {
 					self.moving_cell = None;
 				} else {
 					moving_target.points = 0;
-					moving_target.life = 10;
+					moving_target.life = 15;
 				}
+				self.recreate_trap_cell();
 			}
 		}
 	}
@@ -186,8 +194,8 @@ impl WorldMap {
 		let reward_idx = self.reward_cell_idx();
 		if let Some(moving_target) = &mut self.moving_cell {
 			if moving_target.idx == reward_idx {
-				moving_target.life += 10;
-				moving_target.points += 100;
+				moving_target.life += 25;
+				moving_target.points += 150;
 				self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
 			}
 		}
@@ -198,9 +206,9 @@ impl WorldMap {
 		let bonus_poinst = self.super_bonus_points();
 		if let Some(moving_target) = &mut self.moving_cell {
 			if moving_target.idx == bonus_idx {
-				moving_target.life += 15;
+				moving_target.life += 25;
 				moving_target.points += bonus_poinst + 300;
-				self.reward_cell = WorldMap::generate_reward_cell(self.get_2d_size(), &self.snake.body);
+				self.super_bonus_cell = Some(WorldMap::generate_super_bonus(self.get_2d_size(), &self.snake.body));
 			}
 		}
 	}
@@ -257,6 +265,7 @@ impl WorldMap {
 	}
 
 	pub fn super_bonus_consumption(&mut self) {
+		self.consumed_super_bonuses += 1;
 		self.bonus_points += self.super_bonus_points();
 		self.points += self.super_bonus_points();
 		self.super_bonus_cell = None;
@@ -744,6 +753,11 @@ pub enum Direction {
 }
 
 #[wasm_bindgen]
+pub enum TargetStatus {
+	VeryHungry, Hungry, Fine, Good, VeryGood
+}
+
+#[wasm_bindgen]
 #[derive(Clone, Copy)]
 pub enum  GameStatus {
 	Won, Lost, Played
@@ -780,7 +794,8 @@ pub struct MovingTarget {
 	points: usize,
 	life: usize,
 	decision_steps: usize,
-	steps_to_move: usize
+	steps_to_move: usize,
+	status: TargetStatus
 }
 
 #[wasm_bindgen]
@@ -795,7 +810,8 @@ impl MovingTarget {
 			points: 500,
 			life: 50,
 			decision_steps,
-			steps_to_move
+			steps_to_move,
+			status: TargetStatus::Good
 		}
 	}
 
@@ -809,6 +825,26 @@ impl MovingTarget {
 		}
 	}
 
+	fn check_status(&mut self) {
+		match self.life {
+			0..=10 => { self.status = TargetStatus::VeryHungry},
+			11..=30 => { self.status = TargetStatus::Hungry},
+			31..=45 => { self.status = TargetStatus::Fine},
+			46..=50 => { self.status = TargetStatus::Good},
+			_ => { self.status = TargetStatus::VeryGood },
+		}
+	}
+
+	pub fn status_verbal(&self) -> String {
+		match self.status {
+			TargetStatus::VeryHungry => String::from("Hungry, almost dead"),
+			TargetStatus::Hungry => String::from("Just Hungry"),
+			TargetStatus::Fine => String::from("I'm fine!"),
+			TargetStatus::Good => String::from("Full of energy"),
+			TargetStatus::VeryGood => String::from("God mode"),
+		}
+	}
+
 	pub fn calculate_points(&self) -> usize {
 		self.points + self.life * 15
 	}
@@ -819,6 +855,7 @@ impl MovingTarget {
 
 	fn decrease_life_steps(&mut self) {
 		self.life -= 1;
+		self.check_status();
 	}
 
 	fn change_direction(&mut self) {

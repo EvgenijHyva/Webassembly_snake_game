@@ -56,12 +56,15 @@ init().then(wasmObj => {
 
 	let touchStartX: null | number = null;
 	let touchStartY: null | number = null;
-	document.addEventListener('touchstart', (event) => {
-		touchStartX = event.touches[0].clientX;
-		touchStartY = event.touches[0].clientY;
-	});
 
-	document.addEventListener('touchend', function(event) {
+	function touchHandler(event: TouchEvent) {
+		event.preventDefault();
+		const gameStatus = map.game_status();
+		if (gameStatus === undefined) {
+			map.start_game();
+			start();
+			gameControlBtn.textContent = "Reload";
+		}
 		const touchEndX = event.changedTouches[0].clientX;
 		const touchEndY = event.changedTouches[0].clientY;
 		const xDiff = touchEndX - touchStartX;
@@ -79,7 +82,17 @@ init().then(wasmObj => {
 				map.change_snake_direction(Direction.Up);
 			}
 		}
-	});
+	}
+
+	function touchSetter(event: TouchEvent) {
+		touchStartX = event.touches[0].clientX;
+		touchStartY = event.touches[0].clientY;
+	}
+
+	canvas.addEventListener('touchstart', touchSetter, false);
+
+	canvas.addEventListener('touchend', touchHandler, false);
+	canvas.addEventListener('touchmove', touchHandler, false);
 
 	gameControlBtn.addEventListener("click", () => {
 		const gameStatus = map.game_status();

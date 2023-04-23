@@ -1,7 +1,7 @@
 import "./styles.css";
-import init, { WorldMap, Direction, GameStatus, GameStat, MovingTarget } from "snake_game";
+import init, { WorldMap, Direction, GameStatus } from "snake_game";
 
-init().then(wasmObj => {
+init().then((wasmObj) => {
 	const canvas = <HTMLCanvasElement> document.getElementById("snake-game-canvas");
 	const gameControlBtn = <HTMLButtonElement> document.getElementById("game-control-btn");
 	const gameStatusContainer = <HTMLDivElement> document.getElementById("game-status");
